@@ -1,5 +1,5 @@
 {
-  "name": "db",
+  "name": "queue",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,7 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@prisma/client": "^7.2.0",
-    "prisma": "^7.2.0"
+    "bullmq": "^5.66.2",
+    "ioredis": "^5.8.2"
   }
 }
