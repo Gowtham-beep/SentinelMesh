@@ -3,6 +3,7 @@ import Fastify from 'fastify'
 const app = Fastify();
 
 const unused = 123;
+const unused2 = 123;
 
 app.get("/health",async()=>{
     return {status:"OK"}
