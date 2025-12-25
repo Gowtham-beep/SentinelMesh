@@ -1,13 +1,6 @@
-import dotenv from 'dotenv';
-import path from 'node:path';
+import "@but/config";
 import Fastify from "fastify";
 import { healthCheck } from "./system/health";
-
-const envPath = path.resolve('../../.env');
-console.log("Env path:", envPath);
-dotenv.config({ path: envPath });
-
-console.log("DATABASE_URL:", process.env.DATABASE_URL);
 
 const server = Fastify();
 

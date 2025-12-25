@@ -66,6 +66,9 @@ importers:
 
   apps/api:
     dependencies:
+      '@but/config':
+        specifier: workspace:*
+        version: link:../../packages/config
       bcrypt:
         specifier: ^6.0.0
         version: 6.0.0
@@ -97,6 +100,9 @@ importers:
 
   packages/db:
     dependencies:
+      '@but/config':
+        specifier: workspace:*
+        version: link:../config
       '@prisma/adapter-pg':
         specifier: ^7.2.0
         version: 7.2.0
