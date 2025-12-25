@@ -7,9 +7,9 @@
   "types": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-     "build": "turbo run build",
-     "generate": "prisma generate",
-     "postinstall": "prisma generate"
+    "build": "turbo run build",
+    "generate": "prisma generate",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -19,5 +19,8 @@
     "@prisma/client": "^7.2.0",
     "pg": "^8.13.1",
     "prisma": "^7.2.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.16.0"
   }
 }
