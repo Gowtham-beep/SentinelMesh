@@ -2,7 +2,7 @@
   "name": "api",
   "version": "1.0.0",
   "description": "",
-   "type": "module",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -10,9 +10,14 @@
     "lint": "eslint \"src/**/*.{js,ts,tsx}\""
   },
   "keywords": [],
-  "author": "",
+  "author": "", 
   "license": "ISC",
   "dependencies": {
-    "fastify": "^5.6.2"
+    "db": "workspace:*",
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "fastify": "^5.6.2",
+    "fastify-jwt": "^4.2.0",
+    "jsonwebtoken": "^9.0.3"
   }
 }

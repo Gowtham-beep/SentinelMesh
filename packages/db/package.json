@@ -2,9 +2,14 @@
   "name": "db",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+     "build": "turbo run build",
+     "generate": "prisma generate",
+     "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
