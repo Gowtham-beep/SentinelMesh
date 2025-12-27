@@ -1,6 +1,12 @@
 import fp from 'fastify-plugin';
 import prisma from 'db';
 
+declare module 'fastify' {
+  interface FastifyInstance {
+    prisma: typeof prisma;
+  }
+}
+
 export default fp((app)=>{
 
     app.decorate('prisma',prisma);
