@@ -5,7 +5,9 @@ import { user } from '../types/user';
  
 
 export default fp(async(app)=>{
-    app.decorateRequest('user', null as unknown as user);
+    if(!app.hasRequestDecorator('user')){
+        app.decorateRequest('user', null as unknown as user);
+    }
     app.addHook('preHandler',async(request,reply)=>{
         try{
             const payload = await request.jwtVerify();

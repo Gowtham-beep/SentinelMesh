@@ -2,7 +2,7 @@ import "@but/config";
 import Fastify from "fastify";
 import { healthCheck } from "./system/health";
 
-//pligins
+//plugins
 
 import jwtPlugin from "./plugins/jwt";
 import prismaPlugin from "./plugins/prisma";
@@ -18,10 +18,9 @@ server.register(prismaPlugin);
 
 server.register(authRoutes,{prefix:'/auth'});
 
-server.register(async(protectedApp)=>{
-    protectedApp.register(authPlugin)
-    
-})
+server.register(async (protectedApp) => {
+  protectedApp.register(authPlugin);
+});
 
 server.get("/health", healthCheck);
 
