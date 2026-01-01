@@ -15,9 +15,13 @@ const server = Fastify({logger:true});
 
 server.register(jwtPlugin);
 server.register(prismaPlugin);
-server.register(authPlugin);
 
 server.register(authRoutes,{prefix:'/auth'});
+
+server.register(async(protectedApp)=>{
+    protectedApp.register(authPlugin)
+    
+})
 
 server.get("/health", healthCheck);
 
