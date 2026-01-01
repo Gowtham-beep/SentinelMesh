@@ -1,5 +1,7 @@
 import { FastifyInstance } from "fastify";
-import { createMonitorSchema } from "./monitor.schema";
+import { createMonitorSchema,
+        getAllMonitorSchema,
+ } from "./monitor.schema";
 import { createMonitor } from "./monitor.service";
 import { Monitor } from "../../types/monitor";
 
@@ -21,4 +23,27 @@ export async function monitorRoutes(app:FastifyInstance){
         })
      }   
     )
+    app.get<{
+        Reply:{monitors:Monitor[]}
+    }>(
+        '/getAll',
+        {schema:getAllMonitorSchema},
+        async(request,reply)=>{
+            const userId = request.user.sub;
+            const monitors = await app.prisma.monitor.findMany({
+                where:{userId},
+                select:{
+                    id:true,
+                    name:true,
+                    url:true,
+                    method:true,
+                    isActive:true,
+                    createdAt:true,
+                    updatedAt:true
+                },
+            });
+            return reply.code(200).send({ monitors });
+        }
+    )
+    
 }
