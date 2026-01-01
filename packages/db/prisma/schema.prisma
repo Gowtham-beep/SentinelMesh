@@ -42,6 +42,7 @@ model Monitor{
   user      User          @relation(fields: [userId], references: [id])
   alerts    AlertConfig?
 
+  @@unique([id, userId])
 
 }
 

@@ -29,7 +29,7 @@ async function signUpUser(
     }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 async function logIn(
     app:FastifyInstance,
     email:string,

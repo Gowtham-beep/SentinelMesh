@@ -5,6 +5,11 @@ const createMonitorSchema = {
     properties: {
       name: { type: 'string', minLength: 1 },
       url: { type: 'string', format: 'uri' },
+      userid:{type:'string',format:'uuid'},
+      isActive: {
+        type: 'boolean',
+        default: true,
+      },
       method: {
         type: 'string',
         enum: ['GET', 'POST', 'PUT', 'HEAD'],
