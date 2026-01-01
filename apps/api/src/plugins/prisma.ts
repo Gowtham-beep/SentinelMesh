@@ -7,7 +7,7 @@ declare module 'fastify' {
   }
 }
 
-export default fp((app)=>{
+export default fp(async (app)=>{
 
     app.decorate('prisma',prisma);
     app.addHook('onClose',async()=>{

@@ -2,7 +2,22 @@ import "@but/config";
 import Fastify from "fastify";
 import { healthCheck } from "./system/health";
 
-const server = Fastify();
+//pligins
+
+import jwtPlugin from "./plugins/jwt";
+import prismaPlugin from "./plugins/prisma";
+import authPlugin from "./plugins/auth";
+
+//routes
+import { authRoutes } from "./modules/auth/auth.route";
+
+const server = Fastify({logger:true});
+
+server.register(jwtPlugin);
+server.register(prismaPlugin);
+server.register(authPlugin);
+
+server.register(authRoutes,{prefix:'/auth'});
 
 server.get("/health", healthCheck);
 
