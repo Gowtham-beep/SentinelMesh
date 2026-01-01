@@ -2,12 +2,12 @@ import { FastifyInstance } from "fastify";
 import "@fastify/jwt";
 import { SignUpSchema,loginSchema} from "./auth.schema";
 import { signUpUser,logIn } from "./auth.service";
-import { user } from "../../types/user";
+import { User } from "../../types/user";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post<{
     Body: { email: string; password: string };
-    Reply: { accessToken: string; user: user };
+    Reply: { accessToken: string; user: User };
   }>(
     '/signup',
     { schema: SignUpSchema },

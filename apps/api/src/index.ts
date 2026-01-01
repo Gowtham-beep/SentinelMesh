@@ -10,6 +10,7 @@ import authPlugin from "./plugins/auth";
 
 //routes
 import { authRoutes } from "./modules/auth/auth.route";
+import { monitorRoutes } from "./modules/monitor/monitor.route";
 
 const server = Fastify({logger:true});
 
@@ -20,6 +21,8 @@ server.register(authRoutes,{prefix:'/auth'});
 
 server.register(async (protectedApp) => {
   protectedApp.register(authPlugin);
+  protectedApp.register(monitorRoutes, { prefix: '/monitors' });
+
 });
 
 server.get("/health", healthCheck);
