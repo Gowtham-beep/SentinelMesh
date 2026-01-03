@@ -2,7 +2,9 @@
   "name": "queue",
   "version": "1.0.0",
   "description": "",
+   "type": "module",
   "main": "index.js",
+  "types": "src/index.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,6 +12,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@but/config": "workspace:*",
     "bullmq": "^5.66.2",
     "ioredis": "^5.8.2"
   }
