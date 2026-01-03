@@ -1,8 +1,15 @@
 import { FastifyInstance } from "fastify";
 import { createMonitorSchema,
         getAllMonitorSchema,
+        getMonitorByIdSchema
  } from "./monitor.schema";
-import { createMonitor } from "./monitor.service";
+
+import { createMonitor,
+        getAllMonitors,
+        getMonitorById,
+        updateMonitor,
+        deleteMonitor,
+ } from "./monitor.service";
 import { Monitor } from "../../types/monitor";
 
 export async function monitorRoutes(app:FastifyInstance){
@@ -30,20 +37,52 @@ export async function monitorRoutes(app:FastifyInstance){
         {schema:getAllMonitorSchema},
         async(request,reply)=>{
             const userId = request.user.sub;
-            const monitors = await app.prisma.monitor.findMany({
-                where:{userId},
-                select:{
-                    id:true,
-                    name:true,
-                    url:true,
-                    method:true,
-                    isActive:true,
-                    createdAt:true,
-                    updatedAt:true
-                },
-            });
+            const monitors = await getAllMonitors(app,userId);
             return reply.code(200).send({ monitors });
         }
     )
-    
+    app.get<{
+        Params:{id:string};
+        Reply:{monitor:Monitor}
+    }>(
+        '/get/:id',
+        {schema:getMonitorByIdSchema},
+        async(request,reply)=>{
+            const {id} = request.params;
+            const userId = request.user.sub;
+            const monitor = await getMonitorById(app,id,userId);
+            return reply.code(200).send({ monitor });
+
+        }
+    )
+    app.put<{
+        Params:{id:string};
+        Body:{name:string,url:string,method:string,isActive:boolean};
+        Reply:{message:string,monitor:Monitor}
+    }>(
+        '/update/:id',
+        async(request,reply)=>{
+            const {id} = request.params;
+            const {name,url,method,isActive} = request.body;
+            const userId = request.user.sub;
+            const monitor = await updateMonitor(app,id,userId,{name,url,method,isActive});
+            return reply.code(200).send({
+                message:'Monitor data updated successfully',
+                monitor
+            })
+        }
+    )
+    app.delete<{
+        Params:{id:string};
+        Reply:{message:string}
+    }>(
+        '/delete/:id',
+        async(request,reply)=>{
+            const {id} = request.params;
+            await deleteMonitor(app,id);
+            return reply.code(200).send({
+                message:'Monitor data deleted successfully'
+            })
+        }
+    )
 }

@@ -51,6 +51,7 @@ async function getAllMonitors(
       method: true,
       isActive: true,
       createdAt: true,
+      updatedAt: true,
     },
   });
 }
@@ -108,6 +109,7 @@ async function updateMonitor(
         url: true,
         method: true,
         isActive: true,
+        createdAt:true,
         updatedAt: true,
       },
     });
