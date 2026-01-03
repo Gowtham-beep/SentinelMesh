@@ -33,6 +33,8 @@ model Monitor{
   name      String
   url       String
   method    String        @default("GET")
+  intervalSeconds Int?
+  lastCheckedAt  DateTime?
   isActive  Boolean       @default(true)
   userId    String        @db.Uuid
   createdAt DateTime      @default(now())

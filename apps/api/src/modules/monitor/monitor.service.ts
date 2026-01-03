@@ -8,6 +8,7 @@ async function createMonitor(
     name: string;
     url: string;
     method?: string;
+    intervalSeconds?:number;
   }
 ) {
   try {
@@ -21,6 +22,8 @@ async function createMonitor(
         name: true,
         url: true,
         method: true,
+        intervalSeconds: true,
+        lastChecketAt: true,
         isActive: true,
         createdAt: true,
         updatedAt: true,
@@ -49,6 +52,8 @@ async function getAllMonitors(
       name: true,
       url: true,
       method: true,
+      intervalSeconds: true,
+      lastChecketAt: true,
       isActive: true,
       createdAt: true,
       updatedAt: true,
@@ -72,6 +77,8 @@ async function getMonitorById(
       name: true,
       url: true,
       method: true,
+      intervalSeconds: true,
+      lastChecketAt: true,
       isActive: true,
       createdAt: true,
       updatedAt: true,
@@ -94,6 +101,7 @@ async function updateMonitor(
     name: string;
     url: string;
     method: string;
+    intervalSeconds:number;
     isActive: boolean;
   }
 ) {
@@ -108,6 +116,8 @@ async function updateMonitor(
         name: true,
         url: true,
         method: true,
+        intervalSeconds:true,
+        lastChecketAt: true,
         isActive: true,
         createdAt:true,
         updatedAt: true,

@@ -6,6 +6,11 @@ const createMonitorSchema = {
       name: { type: 'string', minLength: 1 },
       url: { type: 'string', format: 'uri' },
       userid:{type:'string',format:'uuid'},
+      intervalSeconds: {
+        type: 'integer',
+        minimum: 1,
+        default: 60,
+      },
       isActive: {
         type: 'boolean',
         default: true,
@@ -25,6 +30,15 @@ const createMonitorSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
+        intervalSeconds: {
+        type: 'integer',
+        minimum: 1,
+        default: 60,
+      },
+      lastChecketAt: {
+        type: 'string',
+        format: 'date-time',
+      },
         isActive: { type: 'boolean' },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },
@@ -45,6 +59,15 @@ const updateMonitorSchema = {
         type: 'string',
         enum: ['GET', 'POST', 'PUT', 'HEAD'],
       },
+      intervalSeconds: {
+        type: 'integer',
+        minimum: 1,
+        default: 60,
+      },
+      lastChecketAt: {
+        type: 'string',
+        format: 'date-time',
+      },
       isActive: { type: 'boolean' },
     },
   },
@@ -56,6 +79,15 @@ const updateMonitorSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
+        intervalSeconds: {
+        type: 'integer',
+        minimum: 1,
+        default: 60,
+      },
+      lastChecketAt: {
+        type: 'string',
+        format: 'date-time',
+      },
         isActive: { type: 'boolean' },
         updatedAt: { type: 'string', format: 'date-time' },
       },
@@ -74,6 +106,15 @@ const getAllMonitorSchema = {
           name: { type: 'string' },
           url: { type: 'string' },
           method: { type: 'string' },
+          intervalSeconds: {
+        type: 'integer',
+        minimum: 1,
+        default: 60,
+      },
+      lastChecketAt: {
+        type: 'string',
+        format: 'date-time',
+      },
           isActive: { type: 'boolean' },
           createdAt: { type: 'string', format: 'date-time' },
         },
@@ -99,6 +140,11 @@ const getMonitorByIdSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
+        intervalSeconds: {
+        type: 'integer',
+        minimum: 1,
+        default: 60,
+      },
         isActive: { type: 'boolean' },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },

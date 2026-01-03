@@ -144,6 +144,9 @@ importers:
 
   packages/queue:
     dependencies:
+      '@but/config':
+        specifier: workspace:*
+        version: link:../config
       bullmq:
         specifier: ^5.66.2
         version: 5.66.2
