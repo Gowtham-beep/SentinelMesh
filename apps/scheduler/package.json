@@ -1,15 +1,22 @@
 {
-  "name": "scheduler",
-  "version": "1.0.0",
-  "description": "",
-   "type": "module",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-     "dev": "tsx src/index.ts",
-    "lint": "eslint \"src/**/*.{js,ts,tsx}\""
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC"
+ "name": "scheduler",
+ "version": "1.0.0",
+ "description": "",
+ "type": "module",
+ "main": "index.js",
+ "scripts": {
+  "test": "echo \"Error: no test specified\" && exit 1",
+  "dev": "tsx src/index.ts",
+  "lint": "eslint \"src/**/*.{js,ts,tsx}\""
+ },
+ "keywords": [],
+ "author": "",
+ "license": "ISC",
+ "dependencies": {
+    "@but/config": "workspace:*",
+    "db":"workspace:*",
+    "queue":"workspace:*",
+    "dayjs": "^1.11.19",
+    "dotenv": "^17.2.3"
+ }
 }
