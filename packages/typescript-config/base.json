@@ -15,7 +15,7 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "ES2022",
-    "forceConsistentCasingInFileNames": true,
-    "include": ["src"]
-  }
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src"]
 }

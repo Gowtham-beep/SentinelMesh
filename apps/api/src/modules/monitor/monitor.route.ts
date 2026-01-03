@@ -2,15 +2,15 @@ import { FastifyInstance } from "fastify";
 import { createMonitorSchema,
         getAllMonitorSchema,
         getMonitorByIdSchema
- } from "./monitor.schema";
+ } from "./monitor.schema.js";
 
 import { createMonitor,
         getAllMonitors,
         getMonitorById,
         updateMonitor,
         deleteMonitor,
- } from "./monitor.service";
-import { Monitor } from "../../types/monitor";
+ } from "./monitor.service.js";
+import { Monitor } from "../../types/monitor.js";
 
 export async function monitorRoutes(app:FastifyInstance){
     app.post<{

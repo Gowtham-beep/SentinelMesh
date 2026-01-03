@@ -1,6 +1,6 @@
 import { FastifyInstance } from "fastify";
 import { Prisma } from "@prisma/client";
-import { hashPassword, verifyPassword } from "../../utils/password";
+import { hashPassword, verifyPassword } from "../../utils/password.js";
 
 async function signUpUser(
     app:FastifyInstance,

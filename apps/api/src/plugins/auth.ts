@@ -1,6 +1,6 @@
 import fp from 'fastify-plugin'
 import '@fastify/jwt';
-import { JwtPayload } from '../types/jwt';
+import { JwtPayload } from '../types/jwt.js';
 
 
 

@@ -1,8 +1,8 @@
 import { FastifyInstance } from "fastify";
 import "@fastify/jwt";
-import { SignUpSchema,loginSchema} from "./auth.schema";
-import { signUpUser,logIn } from "./auth.service";
-import { User } from "../../types/user";
+import { SignUpSchema,loginSchema} from "./auth.schema.js";
+import { signUpUser,logIn } from "./auth.service.js";
+import { User } from "../../types/user.js";
 
 export async function authRoutes(app: FastifyInstance) {
   app.post<{
@@ -38,7 +38,3 @@ export async function authRoutes(app: FastifyInstance) {
     }
   )
 }
-
-
-
-    

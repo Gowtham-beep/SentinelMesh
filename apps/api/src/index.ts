@@ -1,16 +1,16 @@
 import "@but/config";
 import Fastify from "fastify";
-import { healthCheck } from "./system/health";
+import { healthCheck } from "./system/health.js";
 
 //plugins
 
-import jwtPlugin from "./plugins/jwt";
-import prismaPlugin from "./plugins/prisma";
-import authPlugin from "./plugins/auth";
+import jwtPlugin from "./plugins/jwt.js";
+import prismaPlugin from "./plugins/prisma.js";
+import authPlugin from "./plugins/auth.js";
 
 //routes
-import { authRoutes } from "./modules/auth/auth.route";
-import { monitorRoutes } from "./modules/monitor/monitor.route";
+import { authRoutes } from "./modules/auth/auth.route.js";
+import { monitorRoutes } from "./modules/monitor/monitor.route.js";
 
 const server = Fastify({logger:true});
 
