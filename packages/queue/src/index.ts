@@ -1,7 +1,10 @@
 import {Queue} from 'bullmq';
 import {redis} from './redis';
 import '@but/config'
- export const  monitorCheckQueue = new Queue(
+
+export {redis};
+
+export const  monitorCheckQueue = new Queue(
     'monitor-check-queue',
     {
         connection:redis,

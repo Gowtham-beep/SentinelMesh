@@ -116,7 +116,20 @@ importers:
         specifier: workspace:*
         version: link:../../packages/queue
 
-  apps/worker: {}
+  apps/worker:
+    dependencies:
+      '@but/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      bullmq:
+        specifier: ^5.66.2
+        version: 5.66.2
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
+      queue:
+        specifier: workspace:*
+        version: link:../../packages/queue
 
   packages/config:
     dependencies:

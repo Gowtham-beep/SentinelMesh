@@ -2,7 +2,7 @@
   "name": "worker",
   "version": "1.0.0",
   "description": "",
-   "type": "module",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -11,5 +11,11 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@but/config": "workspace:*",
+    "bullmq": "^5.66.2",
+    "dotenv": "^17.2.3",
+    "queue": "workspace:*"
+  }
 }
