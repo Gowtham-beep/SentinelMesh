@@ -1,7 +1,7 @@
 const SignUpSchema={
     body:{
         type:'object',
-        required:['emial','password'],
+        required:['email','password'],
         properties:{
             email:{type:'string',format:'email'},
             password:{type:'string',minLength:8}

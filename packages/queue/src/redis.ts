@@ -1,5 +1,27 @@
 import {Redis} from 'ioredis';
 
+// Redis connection for queues (non-blocking operations)
 export const redis = new Redis(process.env.REDIS_URL!,{
-    maxRetriesPerRequest: null
+    maxRetriesPerRequest: 3,
+    enableReadyCheck: false,
+    lazyConnect: true,
+    tls: {
+        rejectUnauthorized: false
+    },
+    connectTimeout: 60000,
+    commandTimeout: 5000,
+    keepAlive: 30000
+})
+
+// Redis connection for workers (blocking operations - must have maxRetriesPerRequest: null)
+export const redisWorker = new Redis(process.env.REDIS_URL!,{
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
+    lazyConnect: true,
+    tls: {
+        rejectUnauthorized: false
+    },
+    connectTimeout: 60000,
+    commandTimeout: 5000,
+    keepAlive: 30000
 })

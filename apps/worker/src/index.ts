@@ -1,6 +1,6 @@
 import '@but/config';
 import {Worker} from "bullmq";
-import {redis} from 'queue';
+import {redisWorker} from 'queue';
 
 console.log('Worker started');
 
@@ -9,5 +9,5 @@ new Worker(
     async(job)=>{
         console.log("job received:",job.data);
     },
-    {connection:redis}
-);  
+    {connection:redisWorker}
+);

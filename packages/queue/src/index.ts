@@ -1,8 +1,8 @@
 import {Queue} from 'bullmq';
-import {redis} from './redis';
+import {redis, redisWorker} from './redis';
 import '@but/config'
 
-export {redis};
+export {redis, redisWorker};
 
 export const  monitorCheckQueue = new Queue(
     'monitor-check-queue',
