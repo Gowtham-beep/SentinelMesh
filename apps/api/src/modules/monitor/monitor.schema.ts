@@ -26,22 +26,28 @@ const createMonitorSchema = {
     201: {
       type: 'object',
       properties: {
-        id: { type: 'string', format: 'uuid' },
-        name: { type: 'string' },
-        url: { type: 'string' },
-        method: { type: 'string' },
-        intervalSeconds: {
-        type: 'integer',
-        minimum: 1,
-        default: 60,
-      },
-      lastChecketAt: {
-        type: 'string',
-        format: 'date-time',
-      },
-        isActive: { type: 'boolean' },
-        createdAt: { type: 'string', format: 'date-time' },
-        updatedAt: { type: 'string', format: 'date-time' },
+        message: { type: 'string' },
+        monitor: {
+          type: 'object',
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+            url: { type: 'string' },
+            method: { type: 'string' },
+            intervalSeconds: {
+            type: 'integer',
+            minimum: 1,
+            default: 60,
+          },
+          lastCheckedAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+            isActive: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
       },
     },
   },
@@ -98,25 +104,30 @@ const updateMonitorSchema = {
 const getAllMonitorSchema = {
   response: {
     200: {
-      type: 'array',
-      items: {
-        type: 'object',
-        properties: {
-          id: { type: 'string', format: 'uuid' },
-          name: { type: 'string' },
-          url: { type: 'string' },
-          method: { type: 'string' },
-          intervalSeconds: {
-        type: 'integer',
-        minimum: 1,
-        default: 60,
-      },
-      lastChecketAt: {
-        type: 'string',
-        format: 'date-time',
-      },
-          isActive: { type: 'boolean' },
-          createdAt: { type: 'string', format: 'date-time' },
+      type: 'object',
+      properties: {
+        monitors: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+              url: { type: 'string' },
+              method: { type: 'string' },
+              intervalSeconds: {
+            type: 'integer',
+            minimum: 1,
+            default: 60,
+          },
+          lastChecketAt: {
+            type: 'string',
+            format: 'date-time',
+          },
+              isActive: { type: 'boolean' },
+              createdAt: { type: 'string', format: 'date-time' },
+            },
+          },
         },
       },
     },

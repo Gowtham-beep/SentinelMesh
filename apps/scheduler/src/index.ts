@@ -23,14 +23,14 @@ setInterval(async()=>{
     for(const monitor of dueMonitors){
         const scheduleAt = now.startOf('minute').toISOString();
         for(const region of REGION){
-            const jobId=`${monitor.id}:${region}:${scheduleAt}`;
+            const jobId=`${monitor.id}-${region}-${scheduleAt}`;
 
             await monitorCheckQueue.add(
                 'check',
                 {
                     monitorId:monitor.id,
-                    user:monitor.url,
-                    type:monitor.method,
+                    url:monitor.url,
+                    method:monitor.method,
                     region,
                     scheduledAt:scheduleAt
                 },

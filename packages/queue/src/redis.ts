@@ -5,9 +5,6 @@ export const redis = new Redis(process.env.REDIS_URL!,{
     maxRetriesPerRequest: 3,
     enableReadyCheck: false,
     lazyConnect: true,
-    tls: {
-        rejectUnauthorized: false
-    },
     connectTimeout: 60000,
     commandTimeout: 5000,
     keepAlive: 30000
@@ -18,10 +15,7 @@ export const redisWorker = new Redis(process.env.REDIS_URL!,{
     maxRetriesPerRequest: null,
     enableReadyCheck: false,
     lazyConnect: true,
-    tls: {
-        rejectUnauthorized: false
-    },
     connectTimeout: 60000,
-    commandTimeout: 5000,
+    commandTimeout: 30000, // Increased timeout for blocking operations
     keepAlive: 30000
 })

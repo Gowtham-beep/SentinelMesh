@@ -20,7 +20,7 @@ export async function monitorRoutes(app:FastifyInstance){
             method:string,
             intervalSeconds:number,
         };
-        Reply:{mesage:string,monitor:Monitor};
+        Reply:{message:string,monitor:Monitor};
     }>(
      '/create',
      {schema:createMonitorSchema},
@@ -30,7 +30,7 @@ export async function monitorRoutes(app:FastifyInstance){
         const monitor = await createMonitor(app,userId,{name,url,method,intervalSeconds});
         
         return reply.code(201).send({
-            mesage:'Monitor data Added successfully',
+            message:'Monitor data Added successfully',
             monitor,
         })
      }   
