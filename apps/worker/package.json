@@ -15,7 +15,7 @@
   "dependencies": {
     "@but/config": "workspace:*",
     "bullmq": "^5.66.2",
-    "db": "^6.0.3",
+    "db": "workspace:*",
     "dotenv": "^17.2.3",
     "node-fetch": "^3.3.2",
     "queue": "workspace:*"
