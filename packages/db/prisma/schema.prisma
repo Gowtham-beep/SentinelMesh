@@ -43,9 +43,28 @@ model Monitor{
   //Realtions
   user      User          @relation(fields: [userId], references: [id])
   alerts    AlertConfig?
+  checks    CheckResult[]
+
 
   @@unique([id, userId])
+}
 
+model CheckResult{
+  id          String        @id @default(uuid()) @db.Uuid
+  monitorId   String        @db.Uuid
+  region      String
+  status      String
+  statusCode  Int?
+  latencyms   Int? 
+  error       String?
+
+  scheduledAt DateTime       @default(now())
+  checkedAt   DateTime      @default(now())
+
+  //Relations
+  monitor     Monitor       @relation(fields: [monitorId], references: [id])
+
+  @@unique([id, monitorId])
 }
 
 model AlertConfig{
