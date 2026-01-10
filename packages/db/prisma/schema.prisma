@@ -13,7 +13,8 @@ datasource db {
 }
 
 enum IncidentScope{
-  regionGLOBAL
+  REGION
+  GLOBAL
 }
 
 enum IncidentStatus{
