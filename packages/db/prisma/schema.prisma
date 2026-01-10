@@ -12,6 +12,16 @@ datasource db {
   provider = "postgresql"
 }
 
+enum IncidentScope{
+  regionGLOBAL
+}
+
+enum IncidentStatus{
+  OPEN
+  RESOLVED
+}
+
+
 
 model User{
   id        String        @id @default(uuid()) @db.Uuid
@@ -44,6 +54,7 @@ model Monitor{
   user      User          @relation(fields: [userId], references: [id])
   alerts    AlertConfig?
   checks    CheckResult[]
+  incidens  Incident[]
 
 
   @@unique([id, userId])
@@ -77,4 +88,21 @@ model AlertConfig{
   monitor     Monitor       @relation(fields: [monitorId], references: [id])
 
 
+}
+
+model Incident{
+  id          String      @id @default(uuid())
+
+  monitorId   String      @db.Uuid
+  scope       IncidentScope
+  region      String?
+  status      IncidentStatus
+
+  openedAt    DateTime     @default(now())
+  closedAt    DateTime?
+
+  monitor     Monitor     @relation(fields: [monitorId],references: [id])
+
+  @@index([monitorId, status])
+  @@index([monitorId, scope, region])
 }

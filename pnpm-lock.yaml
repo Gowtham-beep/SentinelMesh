@@ -116,6 +116,21 @@ importers:
         specifier: workspace:*
         version: link:../../packages/queue
 
+  apps/verifier:
+    dependencies:
+      '@but/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      dayjs:
+        specifier: ^1.11.19
+        version: 1.11.19
+      db:
+        specifier: workspace:*
+        version: link:../../packages/db
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
+
   apps/worker:
     dependencies:
       '@but/config':
