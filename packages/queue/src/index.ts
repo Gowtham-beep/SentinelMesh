@@ -19,3 +19,16 @@ export const  monitorCheckQueue = new Queue(
         }
     }
 );
+
+export const alertQueue = new Queue(
+    'send-alert',
+    {
+        connection:redis,
+        defaultJobOptions:{
+        attempts:5,
+        backoff:{type:'exponential',delay:5000},
+        removeOnComplete:true,
+        removeOnFail:true
+        }    
+    }
+);

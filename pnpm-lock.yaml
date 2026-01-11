@@ -130,6 +130,9 @@ importers:
       dotenv:
         specifier: ^17.2.3
         version: 17.2.3
+      queue:
+        specifier: workspace:*
+        version: link:../../packages/queue
 
   apps/worker:
     dependencies:

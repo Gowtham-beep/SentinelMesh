@@ -12,16 +12,25 @@ datasource db {
   provider = "postgresql"
 }
 
-enum IncidentScope{
+enum IncidentScope {
   REGION
   GLOBAL
 }
 
-enum IncidentStatus{
+enum IncidentStatus {
   OPEN
   RESOLVED
 }
+enum AlertType {
+  INCIDENT_OPENED
+  INCIDENT_RESOLVED
+}
 
+enum AlertStatus {
+  PENDING
+  SENT
+  FAILED
+}
 
 
 model User{
@@ -92,7 +101,7 @@ model AlertConfig{
 }
 
 model Incident{
-  id          String      @id @default(uuid())
+  id          String      @id @default(uuid()) @db.Uuid
 
   monitorId   String      @db.Uuid
   scope       IncidentScope
@@ -101,9 +110,29 @@ model Incident{
 
   openedAt    DateTime     @default(now())
   closedAt    DateTime?
-
+  //Relations
   monitor     Monitor     @relation(fields: [monitorId],references: [id])
+  alerts      Alert[]
 
   @@index([monitorId, status])
   @@index([monitorId, scope, region])
 }
+
+model Alert{
+  id          String        @id @default(uuid())
+  incidentId  String        @db.Uuid
+  type        AlertType
+  channel     String        
+  status      AlertStatus   @default(PENDING)
+
+  cretaedAt   DateTime      @default(now())
+  sentAt      DateTime?
+  //Relations
+  incident    Incident      @relation(fields: [incidentId], references: [id])
+
+  @@unique([incidentId,type,channel])
+  @@index([status])
+
+}
+
+

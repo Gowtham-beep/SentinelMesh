@@ -1,4 +1,5 @@
 import prisma from "db";
+import { emitAlert } from "./emitAlert";
 
 export async function verifyGlobal(monitorId:string){
     const openRegional = await prisma.incident.findMany({
@@ -16,13 +17,18 @@ export async function verifyGlobal(monitorId:string){
         }
     });
     if(openRegional.length>=2 && !openGlobal){
-        await prisma.incident.create({
+        const newIncident = await prisma.incident.create({
             data:{
                 monitorId,
                 scope:"GLOBAL",
                 status:"OPEN"
             }
-        });    
+        });
+        await emitAlert({
+                    incidentId:newIncident.id,
+                    type:'INCIDENT_OPENED',
+                    channel:'EMAIL'
+                });   
     }
     if(openRegional.length<2 && openGlobal){
         await prisma.incident.update({
@@ -34,5 +40,10 @@ export async function verifyGlobal(monitorId:string){
                 closedAt:new Date()
             }
         });
+        await emitAlert({
+                    incidentId:openGlobal.id,
+                    type:'INCIDENT_RESOLVED',
+                    channel:'EMAIL'
+                });
     }
 }

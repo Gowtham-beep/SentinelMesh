@@ -1,5 +1,6 @@
 import prisma from "db";
 import { getRecentResults } from "./result";
+import { emitAlert } from "./emitAlert";
 
 export async function verifyRegion(
     monitorId:string,
@@ -19,13 +20,18 @@ export async function verifyRegion(
         }
     });
     if(allDown && !openIncident){
-        await prisma.incident.create({
+        const newIncident = await prisma.incident.create({
             data:{
                 monitorId,
                 scope:'REGION',
                 region,
                 status:'OPEN'
             }
+        });
+        await emitAlert({
+            incidentId:newIncident.id,
+            type:'INCIDENT_OPENED',
+            channel:'EMAIL'
         });
     }
     if(!allDown && openIncident){
@@ -36,5 +42,10 @@ export async function verifyRegion(
                 closedAt: new Date()
             }
         })
+         await emitAlert({
+            incidentId:openIncident.id,
+            type:'INCIDENT_RESOLVED',
+            channel:'EMAIL'
+        });
     }
 }

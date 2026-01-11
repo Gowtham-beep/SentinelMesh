@@ -12,6 +12,7 @@
    "dependencies": {
     "@but/config": "workspace:*",
     "db": "workspace:*",
+    "queue":"workspace:*",
     "dotenv": "^17.2.3",
     "dayjs": "^1.11.19"
   }
