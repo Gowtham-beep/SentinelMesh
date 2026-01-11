@@ -1,13 +1,17 @@
 {
   "name": "@repo/eslint-config",
   "private": true,
-  "main": "base.cjs",
+  "main": "eslint.config.mjs",
   "exports": {
-    "./base": "./base.cjs",
-    "./next": "./next.cjs",
-    "./react-internal": "./react-internal.cjs"
+    "./base": "./eslint.config.mjs",
+    "./next": "./next.mjs",
+    "./react-internal": "./react-internal.mjs"
   },
   "peerDependencies": {
-    "eslint": "^8.0.0"
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint-plugin-turbo": "^2.0.0"
   }
 }
