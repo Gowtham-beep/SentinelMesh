@@ -7,6 +7,7 @@ console.log('Worker started');
 
 import { httpCheck } from './checks/http';
 import { pingCheck } from './checks/ping';
+import { processAlert } from './alert/processor';
 
 new Worker(
     'monitor-check-queue',
@@ -41,4 +42,13 @@ new Worker(
         connection:redisWorker,
         concurrency:5
     }
+)
+
+new Worker(
+    'send-alert',
+    async(job)=>{
+        await processAlert(job.data.alertId);
+    },{
+        connection:redisWorker,
+        concurrency:3}
 )
