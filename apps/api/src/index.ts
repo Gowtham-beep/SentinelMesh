@@ -9,6 +9,7 @@ import authPlugin from "./plugins/auth.js";
 
 import { authRoutes } from "./modules/auth/auth.route.js";
 import { monitorRoutes } from "./modules/monitor/monitor.route.js";
+import { incidentRoutes } from "./modules/incident/incident.route.js";
 
 const server = Fastify({ logger: true });
 
@@ -29,6 +30,7 @@ server.register(authRoutes, { prefix: "/auth" });
 server.register(async (protectedApp) => {
   protectedApp.register(authPlugin);
   protectedApp.register(monitorRoutes, { prefix: "/monitors" });
+  protectedApp.register(incidentRoutes, { prefix: "/incidents" });
 });
 
 // health

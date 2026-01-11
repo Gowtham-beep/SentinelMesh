@@ -8,7 +8,7 @@ async function createMonitor(
     name: string;
     url: string;
     method?: string;
-    intervalSeconds?:number;
+    intervalSeconds?: number;
   }
 ) {
   try {
@@ -98,11 +98,11 @@ async function updateMonitor(
   id: string,
   userId: string,
   data: {
-    name: string;
-    url: string;
-    method: string;
-    intervalSeconds:number;
-    isActive: boolean;
+    name?: string;
+    url?: string;
+    method?: string;
+    intervalSeconds?: number;
+    isActive?: boolean;
   }
 ) {
   try {
@@ -116,10 +116,10 @@ async function updateMonitor(
         name: true,
         url: true,
         method: true,
-        intervalSeconds:true,
+        intervalSeconds: true,
         lastCheckedAt: true,
         isActive: true,
-        createdAt:true,
+        createdAt: true,
         updatedAt: true,
       },
     });
@@ -136,28 +136,28 @@ async function updateMonitor(
 
 
 async function deleteMonitor(
-    app:FastifyInstance,
-    id:string
-){
-try {
+  app: FastifyInstance,
+  id: string
+) {
+  try {
     await app.prisma.monitor.delete({
-        where:{
-            id
-        }
+      where: {
+        id
+      }
     });
-    return {message:'Monitor Deleted Successfully'};
-} catch (e) {
-      if(e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002'){
-            throw new Error('Failded to delete monitordata');
-        }
-        throw e;
-}
+    return { message: 'Monitor Deleted Successfully' };
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
+      throw new Error('Failded to delete monitordata');
+    }
+    throw e;
+  }
 }
 
-export{
-    createMonitor,
-    getAllMonitors,
-    getMonitorById,
-    updateMonitor,
-    deleteMonitor
+export {
+  createMonitor,
+  getAllMonitors,
+  getMonitorById,
+  updateMonitor,
+  deleteMonitor
 }

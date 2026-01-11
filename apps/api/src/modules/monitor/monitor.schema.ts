@@ -5,7 +5,7 @@ const createMonitorSchema = {
     properties: {
       name: { type: 'string', minLength: 1 },
       url: { type: 'string', format: 'uri' },
-      userid:{type:'string',format:'uuid'},
+      userid: { type: 'string', format: 'uuid' },
       intervalSeconds: {
         type: 'integer',
         minimum: 1,
@@ -26,7 +26,6 @@ const createMonitorSchema = {
     201: {
       type: 'object',
       properties: {
-        message: { type: 'string' },
         monitor: {
           type: 'object',
           properties: {
@@ -34,15 +33,8 @@ const createMonitorSchema = {
             name: { type: 'string' },
             url: { type: 'string' },
             method: { type: 'string' },
-            intervalSeconds: {
-            type: 'integer',
-            minimum: 1,
-            default: 60,
-          },
-          lastCheckedAt: {
-            type: 'string',
-            format: 'date-time',
-          },
+            intervalSeconds: { type: 'integer' },
+            lastCheckedAt: { type: 'string', format: 'date-time' },
             isActive: { type: 'boolean' },
             createdAt: { type: 'string', format: 'date-time' },
             updatedAt: { type: 'string', format: 'date-time' },
@@ -85,15 +77,8 @@ const updateMonitorSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
-        intervalSeconds: {
-        type: 'integer',
-        minimum: 1,
-        default: 60,
-      },
-      lastChecketAt: {
-        type: 'string',
-        format: 'date-time',
-      },
+        intervalSeconds: { type: 'integer' },
+        lastCheckedAt: { type: 'string', format: 'date-time' },
         isActive: { type: 'boolean' },
         updatedAt: { type: 'string', format: 'date-time' },
       },
@@ -104,30 +89,18 @@ const updateMonitorSchema = {
 const getAllMonitorSchema = {
   response: {
     200: {
-      type: 'object',
-      properties: {
-        monitors: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              id: { type: 'string', format: 'uuid' },
-              name: { type: 'string' },
-              url: { type: 'string' },
-              method: { type: 'string' },
-              intervalSeconds: {
-            type: 'integer',
-            minimum: 1,
-            default: 60,
-          },
-          lastChecketAt: {
-            type: 'string',
-            format: 'date-time',
-          },
-              isActive: { type: 'boolean' },
-              createdAt: { type: 'string', format: 'date-time' },
-            },
-          },
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+          url: { type: 'string' },
+          method: { type: 'string' },
+          intervalSeconds: { type: 'integer' },
+          lastCheckedAt: { type: 'string', format: 'date-time' },
+          isActive: { type: 'boolean' },
+          createdAt: { type: 'string', format: 'date-time' },
         },
       },
     },
@@ -151,11 +124,7 @@ const getMonitorByIdSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
-        intervalSeconds: {
-        type: 'integer',
-        minimum: 1,
-        default: 60,
-      },
+        intervalSeconds: { type: 'integer' },
         isActive: { type: 'boolean' },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },
@@ -165,28 +134,25 @@ const getMonitorByIdSchema = {
 };
 
 const deleteMonitorSchema = {
-    params: {
+  params: {
     type: 'object',
-    required:['id'],
-    properties:{
-        id:{type:'string',format:'uuid'}
+    required: ['id'],
+    properties: {
+      id: { type: 'string', format: 'uuid' }
     },
-},
-    response: {
-    200: {
-      type: 'object',
-      properties: {
-        message: { type: 'string' },
-      },
+  },
+  response: {
+    204: {
+      type: 'null',
     },
   },
 };
 
 
-export{
-    createMonitorSchema,
-    updateMonitorSchema,
-    getAllMonitorSchema,
-    getMonitorByIdSchema,
-    deleteMonitorSchema
+export {
+  createMonitorSchema,
+  updateMonitorSchema,
+  getAllMonitorSchema,
+  getMonitorByIdSchema,
+  deleteMonitorSchema
 }
