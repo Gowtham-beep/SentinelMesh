@@ -5,164 +5,137 @@ import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Monitor, CheckResult, MonitorStats, Incident } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Edit, AlertTriangle, Globe } from 'lucide-react';
+import { ArrowLeft, Edit, AlertTriangle, Globe, Loader2 } from 'lucide-react';
 import Link from 'next/link';
-import { Loader2 } from 'lucide-react';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-} from 'recharts';
+import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
-function StatusBadge({ status }: { status: Monitor['status'] }) {
-  const map: Record<Monitor['status'], string> = {
-    UP: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400',
-    DOWN: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400',
-    PENDING: 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400',
-  };
+function StatusDot({ status }: { status?: string }) {
+  const colors: Record<string, string> = { UP: 'bg-green-400', DOWN: 'bg-red-400', PENDING: 'bg-amber-400' };
+  const bg = colors[status ?? ''] ?? 'bg-slate-500';
   return (
-    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${map[status]}`}>
-      {status}
+    <span className="relative flex h-2.5 w-2.5">
+      <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${status ? 'status-pulse' : ''} ${bg}`} />
+      <span className={`relative inline-flex h-2.5 w-2.5 rounded-full ${bg}`} />
     </span>
   );
 }
 
-function UptimeBar({ checks }: { checks: CheckResult[] }) {
-  // Build a day-bucket map for last 90 days
-  const today = new Date();
-  const days: Array<{ date: string; up: number; total: number }> = [];
-
-  for (let i = 89; i >= 0; i--) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const key = d.toISOString().split('T')[0];
-    days.push({ date: key, up: 0, total: 0 });
-  }
-
-  for (const check of checks) {
-    const key = check.checkedAt.split('T')[0];
-    const bucket = days.find((d) => d.date === key);
-    if (bucket) {
-      bucket.total++;
-      if (check.result === 'UP') bucket.up++;
-    }
-  }
-
+function StatusBadge({ status }: { status?: string }) {
+  const styles: Record<string, string> = {
+    UP: 'bg-green-500/10 text-green-400 ring-1 ring-green-500/20',
+    DOWN: 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20',
+    PENDING: 'bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20',
+  };
+  const label = status ?? 'PENDING';
   return (
-    <div className="flex gap-px">
-      {days.map((day) => {
-        const ratio = day.total === 0 ? null : day.up / day.total;
-        const color =
-          ratio === null
-            ? 'bg-zinc-200 dark:bg-zinc-700'
-            : ratio === 1
-              ? 'bg-green-500'
-              : ratio === 0
-                ? 'bg-red-500'
-                : 'bg-yellow-400';
-        return (
-          <div
-            key={day.date}
-            title={`${day.date}: ${day.total === 0 ? 'No data' : `${day.up}/${day.total} UP`}`}
-            className={`h-6 flex-1 rounded-sm ${color}`}
-          />
-        );
-      })}
+    <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-mono font-medium ${styles[label] ?? 'bg-slate-800 text-slate-400 ring-1 ring-slate-700'}`}>
+      <StatusDot status={label} />
+      {label}
+    </span>
+  );
+}
+
+function StatCard({ label, value, accent }: { label: string; value: string; accent?: string }) {
+  return (
+    <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-5">
+      <p className="text-xs font-medium uppercase tracking-widest text-slate-600">{label}</p>
+      <p className={`mt-2 text-3xl font-bold font-mono ${accent ?? 'text-slate-100'}`}>{value}</p>
     </div>
   );
 }
+
+function UptimeBar({ checks }: { checks: CheckResult[] }) {
+  const today = new Date();
+  const days = Array.from({ length: 90 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() - (89 - i));
+    return { date: d.toISOString().split('T')[0], up: 0, total: 0 };
+  });
+  for (const c of checks) {
+    const key = c.checkedAt.split('T')[0];
+    const b = days.find(d => d.date === key);
+    if (b) { b.total++; if (c.status === 'UP') b.up++; }
+  }
+  return (
+    <div className="space-y-3">
+      <div className="flex gap-0.5">
+        {days.map(d => {
+          const r = d.total === 0 ? null : d.up / d.total;
+          const bg = r === null ? 'bg-slate-800' : r === 1 ? 'bg-green-500' : r === 0 ? 'bg-red-500' : 'bg-amber-400';
+          return <div key={d.date} title={`${d.date}: ${d.total === 0 ? 'No data' : `${d.up}/${d.total} UP`}`} className={`h-7 flex-1 rounded-sm ${bg} hover:opacity-70 transition-opacity`} />;
+        })}
+      </div>
+      <div className="flex items-center justify-between text-xs text-slate-600">
+        <span>90 days ago</span>
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-green-500 inline-block" />Up</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-red-500 inline-block" />Down</span>
+          <span className="flex items-center gap-1.5"><span className="h-2 w-2 rounded-sm bg-slate-700 inline-block" />No data</span>
+        </div>
+        <span>Today</span>
+      </div>
+    </div>
+  );
+}
+
+const tooltipStyle = { fontSize: 12, borderRadius: 8, border: '1px solid #1e293b', background: '#0f172a', color: '#e2e8f0' };
 
 export default function MonitorDetailPage() {
   const params = useParams();
   const id = params.id as string;
 
-  const { data: monitor, isLoading: monitorLoading } = useQuery<Monitor>({
+  const { data: monitor, isLoading } = useQuery<Monitor>({
     queryKey: ['monitors', id],
-    queryFn: async () => {
-      const res = await api.get<Monitor>(`/monitors/${id}`);
-      return res.data;
-    },
+    queryFn: async () => (await api.get<Monitor>(`/monitors/${id}`)).data,
     refetchInterval: 10000,
   });
 
   const { data: stats } = useQuery<MonitorStats>({
     queryKey: ['monitors', id, 'stats'],
-    queryFn: async () => {
-      const res = await api.get<MonitorStats>(`/monitors/${id}/stats`);
-      return res.data;
-    },
+    queryFn: async () => (await api.get<MonitorStats>(`/monitors/${id}/stats`)).data,
     refetchInterval: 30000,
+    retry: false,
   });
 
   const { data: checks } = useQuery<CheckResult[]>({
     queryKey: ['monitors', id, 'checks'],
-    queryFn: async () => {
-      const res = await api.get<CheckResult[]>(`/monitors/${id}/checks?limit=100`);
-      return res.data;
-    },
+    queryFn: async () => (await api.get<CheckResult[]>(`/monitors/${id}/checks?limit=100`)).data,
     refetchInterval: 10000,
     retry: false,
   });
 
   const { data: incidents } = useQuery<Incident[]>({
-    queryKey: ['incidents', { monitorId: id }],
-    queryFn: async () => {
-      const res = await api.get<Incident[]>(`/incidents?monitorId=${id}`);
-      return res.data;
-    },
+    queryKey: ['incidents'],
+    queryFn: async () => (await api.get<Incident[]>('/incidents')).data,
     refetchInterval: 10000,
   });
 
-  if (monitorLoading) {
-    return (
-      <div className="flex h-96 items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
-      </div>
-    );
-  }
+  if (isLoading) return <div className="flex h-96 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-cyan-500" /></div>;
+  if (!monitor) return <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 text-sm text-red-400">Monitor not found.</div>;
 
-  if (!monitor) {
-    return (
-      <div className="rounded-md bg-red-50 p-4 text-sm text-red-600">
-        Monitor not found.
-      </div>
-    );
-  }
+  const sorted = (checks ?? []).slice().sort((a, b) => new Date(a.checkedAt).getTime() - new Date(b.checkedAt).getTime());
+  const chartData = sorted.map(c => ({
+    time: new Date(c.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    latency: c.latencyms,
+  }));
 
-  // Build chart data: latest 100 checks sorted by time, map to { time, latency }
-  const chartData = (checks ?? [])
-    .slice()
-    .sort((a, b) => new Date(a.checkedAt).getTime() - new Date(b.checkedAt).getTime())
-    .map((c) => ({
-      time: new Date(c.checkedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      latency: c.latencyMs,
-    }));
+  const latencies = sorted.map(c => c.latencyms).filter((x): x is number => x !== null);
+  const minLatency = latencies.length ? Math.min(...latencies) : null;
+  const maxLatency = latencies.length ? Math.max(...latencies) : null;
+  const avgLatency = latencies.length ? Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length) : null;
 
-  const activeIncident = incidents?.find((i) => i.resolvedAt === null);
-  const recentChecks = (checks ?? [])
-    .slice()
-    .sort((a, b) => new Date(b.checkedAt).getTime() - new Date(a.checkedAt).getTime())
-    .slice(0, 20);
+  const activeIncident = (incidents ?? []).find(i => i.monitorId === id && i.status === 'OPEN');
+  const recentChecks = sorted.slice().reverse().slice(0, 25);
 
   return (
-    <div className="space-y-6">
-      {/* Active incident banner */}
+    <div className="space-y-6 animate-fade-in">
       {activeIncident && (
-        <div className="flex items-center gap-3 rounded-md bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
-          <AlertTriangle className="h-4 w-4 shrink-0" />
-          <span>
-            <strong>Ongoing incident</strong> — started{' '}
-            {new Date(activeIncident.startedAt).toLocaleString()}
-          </span>
+        <div className="flex items-center gap-3 rounded-xl border border-red-500/30 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+          <AlertTriangle className="h-4 w-4 shrink-0 animate-pulse" />
+          <span><strong>Active Incident</strong> — started {new Date(activeIncident.openedAt).toLocaleString()}</span>
         </div>
       )}
 
-      {/* Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -170,168 +143,107 @@ export default function MonitorDetailPage() {
           </Button>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold tracking-tight">{monitor.name}</h1>
+              <h1 className="text-2xl font-bold gradient-text">{monitor.name}</h1>
               <StatusBadge status={monitor.status} />
             </div>
-            <a
-              href={monitor.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-1 flex items-center gap-1 text-sm text-blue-500 hover:underline"
-            >
-              <Globe className="h-3.5 w-3.5" />
-              {monitor.url}
+            <a href={monitor.url} target="_blank" rel="noopener noreferrer"
+              className="mt-1 flex items-center gap-1.5 font-mono text-sm text-slate-500 hover:text-cyan-400 transition-colors">
+              <Globe className="h-3.5 w-3.5" />{monitor.url}
             </a>
           </div>
         </div>
         <Button variant="outline" size="sm" asChild>
-          <Link href={`/monitors/${id}/edit`}>
-            <Edit className="mr-2 h-4 w-4" />
-            Edit
-          </Link>
+          <Link href={`/monitors/${id}/edit`}><Edit className="mr-1.5 h-3.5 w-3.5" />Edit</Link>
         </Button>
       </div>
 
       {/* Uptime stat cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        {[
-          { label: 'Uptime (24h)', value: stats?.uptime24h },
-          { label: 'Uptime (7d)', value: stats?.uptime7d },
-          { label: 'Uptime (30d)', value: stats?.uptime30d },
-        ].map(({ label, value }) => (
-          <Card key={label}>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-zinc-500">{label}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {value != null ? `${value.toFixed(2)}%` : '—'}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Uptime 24h" value={stats?.uptime24h != null ? `${stats.uptime24h.toFixed(2)}%` : '—'} accent={stats?.uptime24h != null ? (stats.uptime24h >= 99 ? 'text-green-400' : stats.uptime24h >= 90 ? 'text-amber-400' : 'text-red-400') : undefined} />
+        <StatCard label="Uptime 7d" value={stats?.uptime7d != null ? `${stats.uptime7d.toFixed(2)}%` : '—'} />
+        <StatCard label="Uptime 30d" value={stats?.uptime30d != null ? `${stats.uptime30d.toFixed(2)}%` : '—'} />
+      </div>
+
+      {/* Latency cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatCard label="Min Latency" value={minLatency != null ? `${minLatency}ms` : '—'} accent="text-cyan-400" />
+        <StatCard label="Avg Latency" value={avgLatency != null ? `${avgLatency}ms` : '—'} accent="text-cyan-300" />
+        <StatCard label="Max Latency" value={maxLatency != null ? `${maxLatency}ms` : '—'} accent="text-slate-400" />
       </div>
 
       {/* Response time chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Response Time (last 100 checks)</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {chartData.length === 0 ? (
-            <p className="text-sm text-zinc-500">No data yet.</p>
-          ) : (
-            <ResponsiveContainer width="100%" height={200}>
-              <LineChart data={chartData} margin={{ top: 4, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
-                <XAxis
-                  dataKey="time"
-                  tick={{ fontSize: 11, fill: '#71717a' }}
-                  interval="preserveStartEnd"
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: '#71717a' }}
-                  unit="ms"
-                />
-                <Tooltip
-                  formatter={(val: any) => [`${val}ms`, 'Latency']}
-                  contentStyle={{
-                    fontSize: 12,
-                    borderRadius: 6,
-                    border: '1px solid #e4e4e7',
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="latency"
-                  stroke="#18181b"
-                  strokeWidth={1.5}
-                  dot={false}
-                  connectNulls={false}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          )}
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <p className="text-sm font-semibold text-slate-300">Response Time</p>
+          <span className="text-xs text-slate-600 font-mono">last 100 checks</span>
+        </div>
+        {chartData.length === 0 ? (
+          <p className="py-8 text-center text-sm text-slate-600">No check data yet.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="latencyGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#06b6d4" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+              <XAxis dataKey="time" tick={{ fontSize: 10, fill: '#475569' }} interval="preserveStartEnd" />
+              <YAxis tick={{ fontSize: 10, fill: '#475569' }} unit="ms" />
+              <Tooltip contentStyle={tooltipStyle} formatter={(v: any) => [`${v}ms`, 'Latency']} />
+              <Area type="monotone" dataKey="latency" stroke="#06b6d4" strokeWidth={1.5} fill="url(#latencyGrad)" dot={false} connectNulls={false} />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+      </div>
 
-      {/* 90-day uptime bar */}
-      <Card>
-        <CardHeader>
-          <CardTitle>90-Day Uptime</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {checks ? (
-            <>
-              <UptimeBar checks={checks} />
-              <div className="mt-2 flex items-center gap-4 text-xs text-zinc-500">
-                <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-green-500" /> Up
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-red-500" /> Down
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="inline-block h-2.5 w-2.5 rounded-sm bg-zinc-200 dark:bg-zinc-700" /> No data
-                </span>
-                <span className="ml-auto">90 days ago → today</span>
-              </div>
-            </>
-          ) : (
-            <p className="text-sm text-zinc-500">No data yet.</p>
-          )}
-        </CardContent>
-      </Card>
+      {/* 90-day bar */}
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 p-6">
+        <div className="mb-4"><p className="text-sm font-semibold text-slate-300">90-Day Uptime</p></div>
+        {checks ? <UptimeBar checks={checks} /> : <p className="text-sm text-slate-600">No data yet.</p>}
+      </div>
 
       {/* Recent checks table */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Recent Checks</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {recentChecks.length === 0 ? (
-            <p className="text-sm text-zinc-500">No check history available.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-zinc-100 dark:border-zinc-800">
-                    <th className="pb-2 text-left font-medium text-zinc-500">Timestamp</th>
-                    <th className="pb-2 text-left font-medium text-zinc-500">Status Code</th>
-                    <th className="pb-2 text-left font-medium text-zinc-500">Latency</th>
-                    <th className="pb-2 text-left font-medium text-zinc-500">Result</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-zinc-50 dark:divide-zinc-900">
-                  {recentChecks.map((check) => (
-                    <tr key={check.id}>
-                      <td className="py-2 text-zinc-600 dark:text-zinc-400">
-                        {new Date(check.checkedAt).toLocaleString()}
-                      </td>
-                      <td className="py-2 text-zinc-600 dark:text-zinc-400">
-                        {check.statusCode ?? '—'}
-                      </td>
-                      <td className="py-2 text-zinc-600 dark:text-zinc-400">
-                        {check.latencyMs != null ? `${check.latencyMs}ms` : '—'}
-                      </td>
-                      <td className="py-2">
-                        <span
-                          className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${check.result === 'UP'
-                              ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                              : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
-                            }`}
-                        >
-                          {check.result}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-slate-800 bg-slate-900/60 overflow-hidden">
+        <div className="border-b border-slate-800 px-6 py-4">
+          <p className="text-sm font-semibold text-slate-300">Recent Checks</p>
+        </div>
+        {recentChecks.length === 0 ? (
+          <p className="px-6 py-8 text-center text-sm text-slate-600">No check history available.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-slate-800/60">
+                {['Timestamp', 'Region', 'Status Code', 'Latency', 'Result'].map(h => (
+                  <th key={h} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-800/40">
+              {recentChecks.map(c => (
+                <tr key={c.id} className="hover:bg-slate-800/20 transition-colors">
+                  <td className="px-6 py-3 font-mono text-xs text-slate-400">{new Date(c.checkedAt).toLocaleString()}</td>
+                  <td className="px-6 py-3 font-mono text-xs text-slate-500">{c.region}</td>
+                  <td className="px-6 py-3 font-mono text-xs">
+                    <span className={c.statusCode && c.statusCode < 400 ? 'text-green-400' : 'text-red-400'}>
+                      {c.statusCode ?? '—'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-3 font-mono text-xs text-cyan-400">
+                    {c.latencyms != null ? `${c.latencyms}ms` : '—'}
+                  </td>
+                  <td className="px-6 py-3">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-mono font-medium ${c.status === 'UP' ? 'bg-green-500/10 text-green-400 ring-1 ring-green-500/20' : 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20'}`}>
+                      {c.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 }

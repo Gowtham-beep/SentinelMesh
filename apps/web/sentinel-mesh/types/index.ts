@@ -1,31 +1,33 @@
+// ─── Monitor ─────────────────────────────────────────────
 export type Monitor = {
   id: string;
   name: string;
   url: string;
-  interval: number; // seconds
-  status: 'UP' | 'DOWN' | 'PENDING';
+  method: string;
+  intervalSeconds: number | null;
   lastCheckedAt: string | null;
-  uptimePercent24h: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+  // Computed fields (may not always be present):
+  status?: 'UP' | 'DOWN' | 'PENDING';
+  uptimePercent24h?: number | null;
 };
 
-export type MonitorStatus = Monitor['status'];
-
-export type MonitorPayload = {
-  name: string;
-  url: string;
-  interval: number;
-  alertEmail: string;
-};
-
+// ─── CheckResult ─────────────────────────────────────────
 export type CheckResult = {
   id: string;
   monitorId: string;
-  checkedAt: string;
+  region: string;
+  status: string;        // e.g. "UP", "DOWN", "ERROR"
   statusCode: number | null;
-  latencyMs: number | null;
-  result: 'UP' | 'DOWN';
+  latencyms: number | null; // lowercase m — matches Prisma schema
+  error: string | null;
+  scheduledAt: string;
+  checkedAt: string;
 };
 
+// ─── MonitorStats ────────────────────────────────────────
 export type MonitorStats = {
   uptime24h: number;
   uptime7d: number;
@@ -33,15 +35,22 @@ export type MonitorStats = {
   avgLatency: number;
 };
 
+// ─── Incident ────────────────────────────────────────────
 export type Incident = {
   id: string;
   monitorId: string;
-  monitorName: string;
-  startedAt: string;
-  resolvedAt: string | null;
-  alertSent: boolean;
+  scope: 'GLOBAL' | 'REGION';
+  region: string | null;
+  status: 'OPEN' | 'RESOLVED';
+  openedAt: string;
+  closedAt: string | null;
+  monitor?: {
+    name: string;
+    url: string;
+  };
 };
 
+// ─── Auth ────────────────────────────────────────────────
 export type LoginRequest = {
   email: string;
   password: string;
@@ -50,3 +59,14 @@ export type LoginRequest = {
 export type LoginResponse = {
   token: string;
 };
+
+// ─── Monitor payload ─────────────────────────────────────
+export type MonitorPayload = {
+  name: string;
+  url: string;
+  intervalSeconds: number;
+  alertEmail: string;
+};
+
+// ─── Aliases for convenience ─────────────────────────────
+export type MonitorStatus = NonNullable<Monitor['status']>;

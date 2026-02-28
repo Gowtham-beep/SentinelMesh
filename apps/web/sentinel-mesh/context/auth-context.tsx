@@ -26,14 +26,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!pathname) return;
 
-    const isLoginRoute = pathname === '/login';
+    const publicPaths = ['/login', '/signup'];
+    const isPublic = publicPaths.some((p) => pathname.startsWith(p));
 
-    if (!isAuthenticated && !isLoginRoute) {
+    if (!isAuthenticated && !isPublic) {
       router.replace('/login');
       return;
     }
 
-    if (isAuthenticated && isLoginRoute) {
+    if (isAuthenticated && isPublic) {
       router.replace('/');
     }
   }, [isAuthenticated, pathname, router]);

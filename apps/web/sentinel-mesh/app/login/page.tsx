@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { useAuth } from '@/context/auth-context';
 import { api } from '@/lib/api';
 import { Shield, AlertCircle, Loader2 } from 'lucide-react';
+import Link from 'next/link';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -105,6 +106,12 @@ export default function LoginPage() {
 
         <p className="mt-6 text-center text-xs text-slate-600">
           JWT stored in memory · Re-login required on refresh
+        </p>
+        <p className="mt-3 text-center text-sm text-slate-600">
+          No account?{' '}
+          <Link href="/signup" className="text-cyan-500 hover:text-cyan-400 transition-colors">
+            Create one
+          </Link>
         </p>
       </div>
     </div>

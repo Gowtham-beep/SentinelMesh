@@ -1,118 +1,165 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Incident, Monitor } from '@/types';
-import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle, AlertTriangle, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { CheckCircle, AlertTriangle, Loader2, Trash2, CheckCheck } from 'lucide-react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/lib/utils';
 
 export default function IncidentsPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [monitorFilter, setMonitorFilter] = useState<string>('all');
 
   const { data: monitors } = useQuery<Monitor[]>({
     queryKey: ['monitors'],
-    queryFn: async () => {
-      const res = await api.get<Monitor[]>('/monitors');
-      return res.data;
-    },
+    queryFn: async () => (await api.get<Monitor[]>('/monitors')).data,
   });
 
   const { data: incidents, isLoading, isError } = useQuery<Incident[]>({
-    queryKey: ['incidents', monitorFilter],
-    queryFn: async () => {
-      const url = monitorFilter !== 'all'
-        ? `/incidents?monitorId=${monitorFilter}`
-        : '/incidents';
-      const res = await api.get<Incident[]>(url);
-      return res.data;
-    },
+    queryKey: ['incidents'],
+    queryFn: async () => (await api.get<Incident[]>('/incidents')).data,
     refetchInterval: 10000,
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => { await api.delete(`/incidents/${id}`); },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents'] }),
+  });
+
+  const resolveMutation = useMutation({
+    mutationFn: async (id: string) => api.patch(`/incidents/${id}/resolve`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents'] }),
+  });
+
+  const filtered = useMemo(() => {
+    if (!incidents) return [];
+    if (monitorFilter === 'all') return incidents;
+    return incidents.filter(i => i.monitorId === monitorFilter);
+  }, [incidents, monitorFilter]);
+
+  const openCount = filtered.filter(i => i.status === 'OPEN').length;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold tracking-tight">Incidents</h1>
-        {/* Filter by monitor */}
+        <div>
+          <h1 className="text-2xl font-bold gradient-text">Incidents</h1>
+          <p className="mt-0.5 text-sm text-slate-500">
+            {isLoading ? null : openCount > 0
+              ? <span className="text-red-400 font-medium">{openCount} active</span>
+              : filtered.length > 0
+                ? `${filtered.length} total · all resolved`
+                : 'All systems operational'}
+          </p>
+        </div>
         <select
-          className="h-9 rounded-md border border-zinc-200 bg-white px-3 text-sm text-zinc-700 focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-300"
+          className="h-9 rounded-lg border border-slate-700 bg-slate-800/50 px-3 text-sm text-slate-300 outline-none focus:border-cyan-500/60 focus:ring-1 focus:ring-cyan-500/30 transition-all"
           value={monitorFilter}
-          onChange={(e) => setMonitorFilter(e.target.value)}
+          onChange={e => setMonitorFilter(e.target.value)}
         >
           <option value="all">All Monitors</option>
-          {monitors?.map((m) => (
-            <option key={m.id} value={m.id}>{m.name}</option>
-          ))}
+          {monitors?.map(m => <option key={m.id} value={m.id}>{m.name}</option>)}
         </select>
       </div>
 
       {isLoading ? (
-        <div className="flex h-60 items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-zinc-400" />
-        </div>
+        <div className="flex h-60 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-cyan-500" /></div>
       ) : isError ? (
-        <div className="rounded-md bg-red-50 p-4 text-sm text-red-600 dark:bg-red-900/20 dark:text-red-400">
-          Failed to load incidents.
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">Failed to load incidents.</div>
+      ) : filtered.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-slate-800 bg-slate-900/30 py-20 text-center">
+          <CheckCircle className="mb-4 h-10 w-10 text-green-500/40" />
+          <h3 className="text-base font-semibold text-slate-400">No incidents</h3>
+          <p className="mt-1 text-sm text-slate-600">All systems are operating normally.</p>
         </div>
-      ) : !incidents || incidents.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <CheckCircle className="mb-4 h-12 w-12 text-green-400" />
-            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">No incidents</h3>
-            <p className="mt-2 text-sm text-zinc-500">All systems are operating normally.</p>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/50">
+          <div className="border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-widest text-slate-500">Incident Log</span>
+            <span className="font-mono text-xs text-slate-600">{filtered.length} total</span>
+          </div>
           <table className="w-full text-sm">
-            <thead className="bg-zinc-50 dark:bg-zinc-900">
-              <tr>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Monitor</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Started</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Resolved</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Duration</th>
-                <th className="px-4 py-3 text-left font-medium text-zinc-500">Alert Sent</th>
+            <thead>
+              <tr className="border-b border-slate-800/60">
+                {['Monitor', 'Scope', 'Started', 'Resolved', 'Duration', 'Actions'].map(h => (
+                  <th key={h} className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
+                ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800 bg-white dark:bg-zinc-950">
-              {incidents.map((incident) => (
-                <tr
-                  key={incident.id}
-                  onClick={() => router.push(`/monitors/${incident.monitorId}`)}
-                  className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900/50 transition-colors"
-                >
-                  <td className="px-4 py-3 font-medium text-zinc-900 dark:text-zinc-50">
-                    <div className="flex items-center gap-2">
-                      {incident.resolvedAt === null
-                        ? <AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
-                        : <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                      }
-                      {incident.monitorName}
+            <tbody className="divide-y divide-slate-800/40">
+              {filtered.map(incident => (
+                <tr key={incident.id} className="group transition-colors hover:bg-slate-800/20">
+                  {/* Monitor name */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2.5">
+                      {incident.status === 'OPEN'
+                        ? <AlertTriangle className="h-3.5 w-3.5 text-red-400 shrink-0 animate-pulse" />
+                        : <CheckCircle className="h-3.5 w-3.5 text-green-500/60 shrink-0" />}
+                      <button
+                        onClick={() => router.push(`/monitors/${incident.monitorId}`)}
+                        className="font-medium text-slate-200 hover:text-cyan-400 transition-colors cursor-pointer"
+                      >
+                        {incident.monitor?.name ?? incident.monitorId.slice(0, 8) + '…'}
+                      </button>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-                    {new Date(incident.startedAt).toLocaleString()}
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-                    {incident.resolvedAt
-                      ? new Date(incident.resolvedAt).toLocaleString()
-                      : <span className="text-red-500 font-medium">Ongoing</span>
-                    }
-                  </td>
-                  <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
-                    {formatDuration(incident.startedAt, incident.resolvedAt)}
-                  </td>
+                  {/* Scope */}
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold ${incident.alertSent
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-                      }`}>
-                      {incident.alertSent ? 'Yes' : 'No'}
+                    <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-mono font-medium bg-slate-800 text-slate-400 ring-1 ring-slate-700">
+                      {incident.scope}{incident.region ? ` · ${incident.region}` : ''}
                     </span>
+                  </td>
+                  {/* Started */}
+                  <td className="px-4 py-3 font-mono text-xs text-slate-400">
+                    {incident.openedAt ? new Date(incident.openedAt).toLocaleString() : '—'}
+                  </td>
+                  {/* Resolved */}
+                  <td className="px-4 py-3 font-mono text-xs">
+                    {incident.closedAt
+                      ? <span className="text-slate-400">{new Date(incident.closedAt).toLocaleString()}</span>
+                      : <span className="text-red-400 font-semibold">Ongoing</span>}
+                  </td>
+                  {/* Duration */}
+                  <td className="px-4 py-3 font-mono text-xs text-slate-500">
+                    {incident.openedAt ? formatDuration(incident.openedAt, incident.closedAt) : '—'}
+                  </td>
+                  {/* Actions */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      {/* Resolve button — only for OPEN incidents */}
+                      {incident.status === 'OPEN' && (
+                        <button
+                          onClick={() => resolveMutation.mutate(incident.id)}
+                          disabled={resolveMutation.isPending}
+                          title="Mark as resolved"
+                          className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-green-500/20 bg-green-500/10 hover:bg-green-500/20 transition-colors disabled:opacity-50"
+                        >
+                          {resolveMutation.isPending
+                            ? <Loader2 className="h-3 w-3 animate-spin" />
+                            : <CheckCheck className="h-3 w-3" />}
+                          Resolve
+                        </button>
+                      )}
+                      {/* Delete button */}
+                      <button
+                        onClick={() => {
+                          if (confirm('Delete this incident log permanently?')) {
+                            deleteMutation.mutate(incident.id);
+                          }
+                        }}
+                        disabled={deleteMutation.isPending}
+                        title="Delete incident"
+                        className="flex items-center justify-center rounded-md p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 ring-1 ring-transparent hover:ring-red-500/20 transition-all disabled:opacity-50"
+                      >
+                        {deleteMutation.isPending
+                          ? <Loader2 className="h-3 w-3 animate-spin" />
+                          : <Trash2 className="h-3 w-3" />}
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}

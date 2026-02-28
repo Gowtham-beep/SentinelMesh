@@ -17,16 +17,28 @@ export async function getIncidents(
 
     return app.prisma.incident.findMany({
         where,
-        orderBy: {
-            openedAt: 'desc',
-        },
+        orderBy: { openedAt: 'desc' },
         include: {
             monitor: {
-                select: {
-                    name: true,
-                    url: true,
-                },
+                select: { name: true, url: true },
             },
+        },
+    });
+}
+
+export async function deleteIncident(app: FastifyInstance, id: string) {
+    return app.prisma.incident.delete({ where: { id } });
+}
+
+export async function resolveIncident(app: FastifyInstance, id: string) {
+    return app.prisma.incident.update({
+        where: { id },
+        data: {
+            status: 'RESOLVED',
+            closedAt: new Date(),
+        },
+        include: {
+            monitor: { select: { name: true, url: true } },
         },
     });
 }
