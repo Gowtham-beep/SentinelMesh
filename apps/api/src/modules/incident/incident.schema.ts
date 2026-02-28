@@ -38,7 +38,7 @@ export const deleteIncidentSchema = {
         required: ['id'],
         properties: { id: { type: 'string' } },
     },
-    response: { 204: { type: 'null' } },
+    // No response schema — 204 No Content has an empty body
 };
 
 export const resolveIncidentSchema = {

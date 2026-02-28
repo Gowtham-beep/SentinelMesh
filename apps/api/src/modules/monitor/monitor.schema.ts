@@ -49,23 +49,12 @@ const createMonitorSchema = {
 const updateMonitorSchema = {
   body: {
     type: 'object',
-    required: ['name', 'url', 'method', 'isActive'],
+    // No required — all fields are optional for PATCH
     properties: {
       name: { type: 'string' },
       url: { type: 'string', format: 'uri' },
-      method: {
-        type: 'string',
-        enum: ['GET', 'POST', 'PUT', 'HEAD'],
-      },
-      intervalSeconds: {
-        type: 'integer',
-        minimum: 1,
-        default: 60,
-      },
-      lastChecketAt: {
-        type: 'string',
-        format: 'date-time',
-      },
+      method: { type: 'string', enum: ['GET', 'POST', 'PUT', 'HEAD'] },
+      intervalSeconds: { type: 'integer', minimum: 1 },
       isActive: { type: 'boolean' },
     },
   },
@@ -77,10 +66,11 @@ const updateMonitorSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
-        intervalSeconds: { type: 'integer' },
-        lastCheckedAt: { type: 'string', format: 'date-time' },
+        intervalSeconds: { type: ['integer', 'null'] },
+        lastCheckedAt: { type: ['string', 'null'], format: 'date-time' },
         isActive: { type: 'boolean' },
         updatedAt: { type: 'string', format: 'date-time' },
+        status: { type: 'string' },
       },
     },
   },
@@ -97,10 +87,11 @@ const getAllMonitorSchema = {
           name: { type: 'string' },
           url: { type: 'string' },
           method: { type: 'string' },
-          intervalSeconds: { type: 'integer' },
-          lastCheckedAt: { type: 'string', format: 'date-time' },
+          intervalSeconds: { type: ['integer', 'null'] },
+          lastCheckedAt: { type: ['string', 'null'], format: 'date-time' },
           isActive: { type: 'boolean' },
           createdAt: { type: 'string', format: 'date-time' },
+          status: { type: 'string' },
         },
       },
     },
@@ -124,10 +115,12 @@ const getMonitorByIdSchema = {
         name: { type: 'string' },
         url: { type: 'string' },
         method: { type: 'string' },
-        intervalSeconds: { type: 'integer' },
+        intervalSeconds: { type: ['integer', 'null'] },
+        lastCheckedAt: { type: ['string', 'null'], format: 'date-time' },
         isActive: { type: 'boolean' },
         createdAt: { type: 'string', format: 'date-time' },
         updatedAt: { type: 'string', format: 'date-time' },
+        status: { type: 'string' },
       },
     },
   },
@@ -141,11 +134,7 @@ const deleteMonitorSchema = {
       id: { type: 'string', format: 'uuid' }
     },
   },
-  response: {
-    204: {
-      type: 'null',
-    },
-  },
+  // No response schema — 204 No Content has empty body
 };
 
 

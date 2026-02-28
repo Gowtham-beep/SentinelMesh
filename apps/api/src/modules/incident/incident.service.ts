@@ -3,9 +3,12 @@ import { IncidentScope, IncidentStatus } from "@prisma/client";
 
 export async function getIncidents(
     app: FastifyInstance,
-    filters: { status?: string; scope?: string }
+    filters: { status?: string; scope?: string; userId: string }
 ) {
-    const where: any = {};
+    const where: any = {
+        // Only return incidents belonging to the logged-in user's monitors
+        monitor: { userId: filters.userId },
+    };
 
     if (filters.status && filters.status !== 'all') {
         where.status = filters.status as IncidentStatus;

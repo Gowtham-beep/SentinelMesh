@@ -12,7 +12,8 @@ export async function incidentRoutes(app: FastifyInstance) {
         { schema: getIncidentsSchema },
         async (request, reply) => {
             const { status, scope } = request.query;
-            const incidents = await getIncidents(app, { status, scope });
+            const userId = (request as any).user.sub;
+            const incidents = await getIncidents(app, { status, scope, userId });
             return reply.code(200).send(incidents);
         }
     );

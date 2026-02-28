@@ -1,11 +1,11 @@
 'use client';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Monitor, CheckResult, MonitorStats, Incident } from '@/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit, AlertTriangle, Globe, Loader2 } from 'lucide-react';
+import { ArrowLeft, Edit, AlertTriangle, Globe, Loader2, Power } from 'lucide-react';
 import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -83,6 +83,14 @@ const tooltipStyle = { fontSize: 12, borderRadius: 8, border: '1px solid #1e293b
 export default function MonitorDetailPage() {
   const params = useParams();
   const id = params.id as string;
+  const queryClient = useQueryClient();
+
+  const toggleMutation = useMutation({
+    mutationFn: async (isActive: boolean) => {
+      await api.patch(`/monitors/${id}`, { isActive });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['monitors', id] }),
+  });
 
   const { data: monitor, isLoading } = useQuery<Monitor>({
     queryKey: ['monitors', id],
@@ -136,6 +144,14 @@ export default function MonitorDetailPage() {
         </div>
       )}
 
+      {/* Inactive warning */}
+      {!monitor.isActive && (
+        <div className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm text-amber-400">
+          <Power className="h-4 w-4 shrink-0" />
+          <span><strong>Monitor is inactive</strong> — checks are paused. Toggle to resume.</span>
+        </div>
+      )}
+
       <div className="flex items-start justify-between">
         <div className="flex items-start gap-4">
           <Button variant="ghost" size="icon" asChild>
@@ -152,9 +168,25 @@ export default function MonitorDetailPage() {
             </a>
           </div>
         </div>
-        <Button variant="outline" size="sm" asChild>
-          <Link href={`/monitors/${id}/edit`}><Edit className="mr-1.5 h-3.5 w-3.5" />Edit</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Active/Inactive toggle */}
+          <button
+            onClick={() => toggleMutation.mutate(!monitor.isActive)}
+            disabled={toggleMutation.isPending}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors disabled:opacity-50 ${monitor.isActive ? 'bg-cyan-500' : 'bg-slate-700'
+              }`}
+            title={monitor.isActive ? 'Deactivate monitor' : 'Activate monitor'}
+          >
+            <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${monitor.isActive ? 'translate-x-6' : 'translate-x-1'
+              }`} />
+          </button>
+          <span className={`text-xs font-medium ${monitor.isActive ? 'text-cyan-400' : 'text-slate-500'}`}>
+            {monitor.isActive ? 'Active' : 'Inactive'}
+          </span>
+          <Button variant="outline" size="sm" asChild>
+            <Link href={`/monitors/${id}/edit`}><Edit className="mr-1.5 h-3.5 w-3.5" />Edit</Link>
+          </Button>
+        </div>
       </div>
 
       {/* Uptime stat cards */}
@@ -212,36 +244,38 @@ export default function MonitorDetailPage() {
         {recentChecks.length === 0 ? (
           <p className="px-6 py-8 text-center text-sm text-slate-600">No check history available.</p>
         ) : (
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-slate-800/60">
-                {['Timestamp', 'Region', 'Status Code', 'Latency', 'Result'].map(h => (
-                  <th key={h} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-800/40">
-              {recentChecks.map(c => (
-                <tr key={c.id} className="hover:bg-slate-800/20 transition-colors">
-                  <td className="px-6 py-3 font-mono text-xs text-slate-400">{new Date(c.checkedAt).toLocaleString()}</td>
-                  <td className="px-6 py-3 font-mono text-xs text-slate-500">{c.region}</td>
-                  <td className="px-6 py-3 font-mono text-xs">
-                    <span className={c.statusCode && c.statusCode < 400 ? 'text-green-400' : 'text-red-400'}>
-                      {c.statusCode ?? '—'}
-                    </span>
-                  </td>
-                  <td className="px-6 py-3 font-mono text-xs text-cyan-400">
-                    {c.latencyms != null ? `${c.latencyms}ms` : '—'}
-                  </td>
-                  <td className="px-6 py-3">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-mono font-medium ${c.status === 'UP' ? 'bg-green-500/10 text-green-400 ring-1 ring-green-500/20' : 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20'}`}>
-                      {c.status}
-                    </span>
-                  </td>
+          <div className="overflow-y-auto max-h-[360px]" style={{ scrollbarWidth: 'thin', scrollbarColor: '#334155 transparent' }}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-slate-800/60">
+                  {['Timestamp', 'Region', 'Status Code', 'Latency', 'Result'].map(h => (
+                    <th key={h} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-800/40">
+                {recentChecks.map(c => (
+                  <tr key={c.id} className="hover:bg-slate-800/20 transition-colors">
+                    <td className="px-6 py-3 font-mono text-xs text-slate-400">{new Date(c.checkedAt).toLocaleString()}</td>
+                    <td className="px-6 py-3 font-mono text-xs text-slate-500">{c.region}</td>
+                    <td className="px-6 py-3 font-mono text-xs">
+                      <span className={c.statusCode && c.statusCode < 400 ? 'text-green-400' : 'text-red-400'}>
+                        {c.statusCode ?? '—'}
+                      </span>
+                    </td>
+                    <td className="px-6 py-3 font-mono text-xs text-cyan-400">
+                      {c.latencyms != null ? `${c.latencyms}ms` : '—'}
+                    </td>
+                    <td className="px-6 py-3">
+                      <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-mono font-medium ${c.status === 'UP' ? 'bg-green-500/10 text-green-400 ring-1 ring-green-500/20' : 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20'}`}>
+                        {c.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

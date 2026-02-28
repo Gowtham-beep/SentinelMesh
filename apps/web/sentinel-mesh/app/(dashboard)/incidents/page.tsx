@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/lib/api';
 import { Incident, Monitor } from '@/types';
-import { CheckCircle, AlertTriangle, Loader2, Trash2, CheckCheck } from 'lucide-react';
+import { CheckCircle, AlertTriangle, Loader2, CheckCheck, X } from 'lucide-react';
 import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { formatDuration } from '@/lib/utils';
@@ -12,6 +12,7 @@ export default function IncidentsPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [monitorFilter, setMonitorFilter] = useState<string>('all');
+  const [mutationError, setMutationError] = useState<string | null>(null);
 
   const { data: monitors } = useQuery<Monitor[]>({
     queryKey: ['monitors'],
@@ -24,14 +25,15 @@ export default function IncidentsPage() {
     refetchInterval: 10000,
   });
 
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => { await api.delete(`/incidents/${id}`); },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents'] }),
-  });
-
   const resolveMutation = useMutation({
     mutationFn: async (id: string) => api.patch(`/incidents/${id}/resolve`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['incidents'] }),
+    onSuccess: () => {
+      setMutationError(null);
+      queryClient.invalidateQueries({ queryKey: ['incidents'] });
+    },
+    onError: (err: any) => {
+      setMutationError(err?.response?.data?.message || err?.message || 'Resolve failed');
+    },
   });
 
   const filtered = useMemo(() => {
@@ -66,6 +68,16 @@ export default function IncidentsPage() {
         </select>
       </div>
 
+      {/* Error banner */}
+      {mutationError && (
+        <div className="flex items-center justify-between rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-3 text-sm text-red-400">
+          <span>{mutationError}</span>
+          <button onClick={() => setMutationError(null)} className="ml-4 text-red-500 hover:text-red-300">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="flex h-60 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-cyan-500" /></div>
       ) : isError ? (
@@ -85,15 +97,15 @@ export default function IncidentsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-800/60">
-                {['Monitor', 'Scope', 'Started', 'Resolved', 'Duration', 'Actions'].map(h => (
+                {['Monitor', 'Scope', 'Started', 'Resolved', 'Duration', 'Action'].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/40">
               {filtered.map(incident => (
-                <tr key={incident.id} className="group transition-colors hover:bg-slate-800/20">
-                  {/* Monitor name */}
+                <tr key={incident.id} className="transition-colors hover:bg-slate-800/20">
+                  {/* Monitor */}
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2.5">
                       {incident.status === 'OPEN'
@@ -101,7 +113,7 @@ export default function IncidentsPage() {
                         : <CheckCircle className="h-3.5 w-3.5 text-green-500/60 shrink-0" />}
                       <button
                         onClick={() => router.push(`/monitors/${incident.monitorId}`)}
-                        className="font-medium text-slate-200 hover:text-cyan-400 transition-colors cursor-pointer"
+                        className="font-medium text-slate-200 hover:text-cyan-400 transition-colors"
                       >
                         {incident.monitor?.name ?? incident.monitorId.slice(0, 8) + '…'}
                       </button>
@@ -127,39 +139,22 @@ export default function IncidentsPage() {
                   <td className="px-4 py-3 font-mono text-xs text-slate-500">
                     {incident.openedAt ? formatDuration(incident.openedAt, incident.closedAt) : '—'}
                   </td>
-                  {/* Actions */}
+                  {/* Action — Resolve only for OPEN incidents */}
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1.5">
-                      {/* Resolve button — only for OPEN incidents */}
-                      {incident.status === 'OPEN' && (
-                        <button
-                          onClick={() => resolveMutation.mutate(incident.id)}
-                          disabled={resolveMutation.isPending}
-                          title="Mark as resolved"
-                          className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-green-500/20 bg-green-500/10 hover:bg-green-500/20 transition-colors disabled:opacity-50"
-                        >
-                          {resolveMutation.isPending
-                            ? <Loader2 className="h-3 w-3 animate-spin" />
-                            : <CheckCheck className="h-3 w-3" />}
-                          Resolve
-                        </button>
-                      )}
-                      {/* Delete button */}
+                    {incident.status === 'OPEN' ? (
                       <button
-                        onClick={() => {
-                          if (confirm('Delete this incident log permanently?')) {
-                            deleteMutation.mutate(incident.id);
-                          }
-                        }}
-                        disabled={deleteMutation.isPending}
-                        title="Delete incident"
-                        className="flex items-center justify-center rounded-md p-1.5 text-slate-600 hover:text-red-400 hover:bg-red-500/10 ring-1 ring-transparent hover:ring-red-500/20 transition-all disabled:opacity-50"
+                        onClick={() => resolveMutation.mutate(incident.id)}
+                        disabled={resolveMutation.isPending}
+                        className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-green-400 ring-1 ring-green-500/20 bg-green-500/10 hover:bg-green-500/20 transition-colors disabled:opacity-50"
                       >
-                        {deleteMutation.isPending
+                        {resolveMutation.isPending
                           ? <Loader2 className="h-3 w-3 animate-spin" />
-                          : <Trash2 className="h-3 w-3" />}
+                          : <CheckCheck className="h-3 w-3" />}
+                        Resolve
                       </button>
-                    </div>
+                    ) : (
+                      <span className="text-xs text-slate-700 font-mono">—</span>
+                    )}
                   </td>
                 </tr>
               ))}

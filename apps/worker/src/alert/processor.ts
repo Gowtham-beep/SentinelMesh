@@ -6,7 +6,14 @@ export async function processAlert(alertId: string) {
     where: { id: alertId },
     include: {
       incident: {
-        include: { monitor: true }
+        include: {
+          monitor: {
+            include: {
+              alerts: true,   // AlertConfig (1-1 relation named 'alerts')
+              user: true,
+            }
+          }
+        }
       }
     }
   });
@@ -14,40 +21,40 @@ export async function processAlert(alertId: string) {
   if (!alert || alert.status === 'SENT') return;
 
   const { incident } = alert;
+  const { monitor } = incident;
+
+  // Prefer AlertConfig email, fall back to user account email
+  const toEmail = monitor.alerts?.email ?? monitor.user?.email;
+  if (!toEmail) {
+    console.warn(`[alert] No email configured for monitor ${monitor.id} — skipping`);
+    return;
+  }
+
   const subject =
     alert.type === 'INCIDENT_OPENED'
-      ? `🚨 Incident OPENED`
-      : `✅ Incident RESOLVED`;
+      ? `🚨 [SentinelMesh] Incident OPENED — ${monitor.name}`
+      : `✅ [SentinelMesh] Incident RESOLVED — ${monitor.name}`;
 
   const html = `
     <h3>${subject}</h3>
-    <p>Monitor: ${incident.monitor.url}</p>
-    <p>Scope: ${incident.scope}</p>
-    ${incident.region ? `<p>Region: ${incident.region}</p>` : ''}
-    <p>Time: ${new Date().toISOString()}</p>
+    <p><strong>Monitor:</strong> ${monitor.name} (${monitor.url})</p>
+    <p><strong>Scope:</strong> ${incident.scope}${incident.region ? ` · ${incident.region}` : ''}</p>
+    <p><strong>Status:</strong> ${incident.status}</p>
+    <p><strong>Time:</strong> ${new Date().toISOString()}</p>
   `;
 
   try {
-    const monitor = await prisma.monitor.findUnique({
-        where:{id:incident.monitorId},
-        include:{user:true}
-    });
-    if (monitor?.user?.email) {
-      await sendEmail(monitor.user.email, subject, html);
-    }
+    await sendEmail(toEmail, subject, html);
 
     await prisma.alert.update({
       where: { id: alert.id },
-      data: {
-        status: 'SENT',
-        sentAt: new Date()
-      }
+      data: { status: 'SENT', sentAt: new Date() }
     });
   } catch (err) {
     await prisma.alert.update({
       where: { id: alert.id },
       data: { status: 'FAILED' }
     });
-    throw err; 
+    throw err;
   }
 }

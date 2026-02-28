@@ -8,18 +8,7 @@ import Link from 'next/link';
 import { Plus, Trash2, Edit, Activity, Globe, Clock, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from '@/lib/utils';
 
-function StatusDot({ status }: { status?: string }) {
-  const colors: Record<string, string> = { UP: 'bg-green-400', DOWN: 'bg-red-400', PENDING: 'bg-amber-400' };
-  const bg = colors[status ?? ''] ?? 'bg-slate-500';
-  return (
-    <span className="relative flex h-2 w-2">
-      <span className={`absolute inline-flex h-full w-full rounded-full opacity-75 ${status ? 'status-pulse' : ''} ${bg}`} />
-      <span className={`relative inline-flex h-2 w-2 rounded-full ${bg}`} />
-    </span>
-  );
-}
-
-function StatusBadge({ status }: { status?: string }) {
+function CheckStatusBadge({ status }: { status?: string }) {
   const styles: Record<string, string> = {
     UP: 'bg-green-500/10 text-green-400 ring-1 ring-green-500/20',
     DOWN: 'bg-red-500/10 text-red-400 ring-1 ring-red-500/20',
@@ -28,9 +17,30 @@ function StatusBadge({ status }: { status?: string }) {
   const label = status ?? 'PENDING';
   return (
     <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-mono font-medium ${styles[label] ?? 'bg-slate-800 text-slate-400 ring-1 ring-slate-700'}`}>
-      <StatusDot status={label} />
+      <span className={`h-1.5 w-1.5 rounded-full ${label === 'UP' ? 'bg-green-400' : label === 'DOWN' ? 'bg-red-400' : 'bg-amber-400'}`} />
       {label}
     </span>
+  );
+}
+
+function ActiveToggle({ id, isActive }: { id: string; isActive: boolean }) {
+  const queryClient = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: async (active: boolean) => {
+      await api.patch(`/monitors/${id}`, { isActive: active });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['monitors'] }),
+  });
+
+  return (
+    <button
+      onClick={() => mutation.mutate(!isActive)}
+      disabled={mutation.isPending}
+      className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none disabled:opacity-50 ${isActive ? 'bg-cyan-500' : 'bg-slate-700'}`}
+      title={isActive ? 'Click to deactivate' : 'Click to activate'}
+    >
+      <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${isActive ? 'translate-x-4' : 'translate-x-0.5'}`} />
+    </button>
   );
 }
 
@@ -76,24 +86,36 @@ export default function MonitorsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-800/60">
-                {['Name', 'URL', 'Status', 'Last Check', 'Interval', ''].map(h => (
+                {['Name', 'URL', 'Check Status', 'Active', 'Last Check', 'Interval', ''].map(h => (
                   <th key={h} className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/40">
               {monitors.map((monitor) => (
-                <tr key={monitor.id} className="group transition-colors hover:bg-slate-800/30">
+                <tr key={monitor.id} className={`group transition-colors hover:bg-slate-800/30 ${!monitor.isActive ? 'opacity-50' : ''}`}>
                   <td className="px-4 py-3 font-medium">
-                    <Link href={`/monitors/${monitor.id}`} className="text-slate-200 hover:text-cyan-400 transition-colors">{monitor.name}</Link>
+                    <Link href={`/monitors/${monitor.id}`} className="text-slate-200 hover:text-cyan-400 transition-colors">
+                      {monitor.name}
+                    </Link>
                   </td>
                   <td className="px-4 py-3">
                     <span className="flex items-center gap-1.5 font-mono text-xs text-slate-500">
                       <Globe className="h-3 w-3 shrink-0 text-slate-600" />
-                      <span className="truncate max-w-[200px]">{monitor.url}</span>
+                      <span className="truncate max-w-[180px]">{monitor.url}</span>
                     </span>
                   </td>
-                  <td className="px-4 py-3"><StatusBadge status={monitor.status} /></td>
+                  <td className="px-4 py-3">
+                    <CheckStatusBadge status={monitor.status} />
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <ActiveToggle id={monitor.id} isActive={monitor.isActive} />
+                      <span className="text-xs text-slate-500">
+                        {monitor.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                    </div>
+                  </td>
                   <td className="px-4 py-3 font-mono text-xs text-slate-500">
                     {monitor.lastCheckedAt ? (
                       <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{formatDistanceToNow(monitor.lastCheckedAt)}</span>
@@ -111,7 +133,9 @@ export default function MonitorsPage() {
                       </Button>
                       <Button
                         variant="ghost" size="sm"
-                        onClick={() => confirm('Delete this monitor?') && deleteMutation.mutate(monitor.id)}
+                        onClick={() => {
+                          if (confirm('Delete this monitor?')) deleteMutation.mutate(monitor.id);
+                        }}
                         className="text-red-500 hover:text-red-400 hover:bg-red-500/10"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
