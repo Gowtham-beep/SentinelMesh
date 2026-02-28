@@ -9,7 +9,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "turbo run build",
     "generate": "prisma generate",
+    "seed": "node --import tsx prisma/seed.ts",
     "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "node --import tsx prisma/seed.ts"
   },
   "keywords": [],
   "author": "",
