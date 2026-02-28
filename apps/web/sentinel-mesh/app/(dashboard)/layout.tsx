@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 import { LayoutDashboard, Activity, AlertTriangle, LogOut, Shield } from 'lucide-react';
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Monitors', href: '/monitors', icon: Activity },
   { name: 'Incidents', href: '/incidents', icon: AlertTriangle },
 ];
@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         {/* Nav */}
         <nav className="flex flex-1 flex-col gap-1 p-3">
           {navigation.map((item) => {
-            const isActive = pathname === item.href || (item.href !== '/' && pathname.startsWith(item.href));
+            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
             return (
               <Link
                 key={item.name}

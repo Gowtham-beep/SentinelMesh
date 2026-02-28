@@ -104,10 +104,7 @@ export default function LoginPage() {
           </form>
         </div>
 
-        <p className="mt-6 text-center text-xs text-slate-600">
-          JWT stored in memory · Re-login required on refresh
-        </p>
-        <p className="mt-3 text-center text-sm text-slate-600">
+        <p className="mt-6 text-center text-sm text-slate-600">
           No account?{' '}
           <Link href="/signup" className="text-cyan-500 hover:text-cyan-400 transition-colors">
             Create one

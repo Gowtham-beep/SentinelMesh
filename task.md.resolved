@@ -1,0 +1,43 @@
+# SentinelMesh Frontend Tasks
+
+## Setup
+- [ ] Install `recharts` and `@types/recharts`
+
+## Core Types & API
+- [ ] Rewrite [types/index.ts](file:///home/gowtham-n/SentinelMesh/apps/web/sentinel-mesh/types/index.ts) to match spec (Monitor, CheckResult, Incident)
+
+## Dashboard Page (`/`)
+- [ ] Rewrite `app/(dashboard)/page.tsx`: monitor list with status badges, uptime %, last checked, Add Monitor button, empty state, `refetchInterval: 10000`
+
+## Monitor List (`/monitors`)
+- [x] Exists — needs alignment with new types (status: UP/DOWN/PENDING)
+
+## Add Monitor (`/monitors/new`)
+- [ ] Rewrite [new/page.tsx](file:///home/gowtham-n/SentinelMesh/apps/web/sentinel-mesh/app/%28dashboard%29/monitors/new/page.tsx): add `alertEmail` field, change interval to select (30s/1m/5m/10m), proper Zod schema, error state inline (no alert())
+
+## Edit Monitor (`/monitors/[id]/edit`)
+- [ ] Rewrite [edit/page.tsx](file:///home/gowtham-n/SentinelMesh/apps/web/sentinel-mesh/app/%28dashboard%29/monitors/%5Bid%5D/edit/page.tsx): same fields as new form, populate with fetched data, use PUT (not PATCH), inline error state
+
+## Monitor Detail (`/monitors/[id]`)
+- [ ] Rewrite `[id]/page.tsx`:
+  - [ ] Header: name, URL, status badge
+  - [ ] Uptime % cards: 24h / 7d / 30d from `/monitors/:id/stats`
+  - [ ] Response time line chart (Recharts) from `/monitors/:id/checks`
+  - [ ] 90-day uptime bar (coloured blocks)
+  - [ ] Recent checks table: timestamp, status code, latency, result
+  - [ ] Active incident banner if DOWN
+
+## Incidents Page (`/incidents`)
+- [ ] Rewrite [incidents/page.tsx](file:///home/gowtham-n/SentinelMesh/apps/web/sentinel-mesh/app/%28dashboard%29/incidents/page.tsx):
+  - [ ] Table: monitor name, started at, resolved at (or "Ongoing"), duration, alert sent
+  - [ ] Filter by monitor (dropdown using monitors list)
+  - [ ] Click row → navigate to monitor detail
+
+## Monitors List Cleanup (`/monitors`)
+- [ ] Align [monitors/page.tsx](file:///home/gowtham-n/SentinelMesh/apps/web/sentinel-mesh/app/%28dashboard%29/monitors/page.tsx) with new types (status UP/DOWN/PENDING), show uptime %, last checked, remove toggle/PATCH
+
+## Verification
+- [ ] Start dev server and verify auth flow (login → dashboard redirect)
+- [ ] Verify dashboard polls and renders monitor list
+- [ ] Verify monitor create/edit/detail flows
+- [ ] Verify incidents page
