@@ -27,6 +27,8 @@ export async function getIncidents(
 }
 
 export async function deleteIncident(app: FastifyInstance, id: string) {
+    // Delete related alerts first to avoid FK constraint violation
+    await app.prisma.alert.deleteMany({ where: { incidentId: id } });
     return app.prisma.incident.delete({ where: { id } });
 }
 

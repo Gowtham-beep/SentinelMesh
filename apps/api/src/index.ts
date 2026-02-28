@@ -13,10 +13,12 @@ import { incidentRoutes } from "./modules/incident/incident.route.js";
 
 const server = Fastify({ logger: true });
 
-// ✅ CORS FIRST
+// ✅ CORS FIRST — explicitly allow all methods so DELETE/PATCH preflights pass
 await server.register(cors, {
   origin: true,
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 });
 
 // plugins
