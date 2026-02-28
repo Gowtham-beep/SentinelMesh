@@ -57,9 +57,13 @@ export default function SignupPage() {
             } else {
                 router.push('/login?signedUp=true');
             }
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Signup error:', err);
-            setError(err.response?.data?.message || err.message || 'Failed to create account');
+            if (typeof err === 'object' && err && 'message' in err) {
+                setError(String((err as { message?: string }).message || 'Failed to create account'));
+            } else {
+                setError('Failed to create account');
+            }
         } finally {
             setLoading(false);
         }

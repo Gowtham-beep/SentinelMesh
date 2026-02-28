@@ -1,63 +1,67 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
 import { setAuthToken } from '@/lib/api';
 
-interface AuthContextType {
-    token: string | null;
-    login: (token: string) => void;
-    logout: () => void;
-    isAuthenticated: boolean;
-}
+type AuthContextType = {
+  token: string | null;
+  isAuthenticated: boolean;
+  login: (nextToken: string) => void;
+  logout: () => void;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-    const [token, setToken] = useState<string | null>(null);
-    const router = useRouter();
-    const pathname = usePathname();
+  const [token, setToken] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const isAuthenticated = Boolean(token);
 
-    // Initialize axios token when state changes
-    useEffect(() => {
-        setAuthToken(token);
-    }, [token]);
+  useEffect(() => {
+    setAuthToken(token);
+  }, [token]);
 
-    const login = (newToken: string) => {
-        setToken(newToken);
-        router.push('/');
-    };
+  useEffect(() => {
+    if (!pathname) return;
 
-    const logout = () => {
+    const isLoginRoute = pathname === '/login';
+
+    if (!isAuthenticated && !isLoginRoute) {
+      router.replace('/login');
+      return;
+    }
+
+    if (isAuthenticated && isLoginRoute) {
+      router.replace('/');
+    }
+  }, [isAuthenticated, pathname, router]);
+
+  const value = useMemo<AuthContextType>(
+    () => ({
+      token,
+      isAuthenticated,
+      login: (nextToken: string) => {
+        setToken(nextToken);
+        router.replace('/');
+      },
+      logout: () => {
         setToken(null);
-        router.push('/login');
-    };
+        router.replace('/login');
+      },
+    }),
+    [isAuthenticated, router, token],
+  );
 
-    const isAuthenticated = !!token;
-
-    // Simple protection: if not authenticated and trying to access protected route, redirect to login.
-    // We'll exclude /login and /signup
-    useEffect(() => {
-        const publicPaths = ['/login', '/signup'];
-        if (!isAuthenticated && !publicPaths.includes(pathname)) {
-            // We defer this slightly or just allow it to render a "Redirecting..."
-            // In this simple in-memory model, refresh = logout -> redirect to login.
-            router.push('/login');
-        }
-    }, [isAuthenticated, pathname, router]);
-
-
-    return (
-        <AuthContext.Provider value={{ token, login, logout, isAuthenticated }}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+
+  return context;
 }

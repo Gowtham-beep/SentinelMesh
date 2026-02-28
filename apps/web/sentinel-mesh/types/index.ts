@@ -1,31 +1,52 @@
-export interface Monitor {
-    id: string;
-    name: string;
-    url: string;
-    interval: number; // seconds
-    status: 'active' | 'inactive' | 'paused';
-    // Assuming 'status' is administrative status (enabled/disabled) 
-    // OR health status? 
-    // Prompt: "List monitors (name, URL, interval, status)" -> "Clear status colors: Green -> healthy".
-    // So likely 'status' refers to HEALTH.
-    // But there's also "Enable / disable monitor".
-    // Let's assume the object has `isActive` (hook/config) and `currentStatus` (health).
-    // If the API matches the prompt "status colors", I'll look for a field that indicates health.
-    // For now I'll use `status` as the health field and maybe `enabled` boolean.
-    // I'll update this as I see fit or keep it flexible.
-    currentStatus?: 'UP' | 'DOWN' | 'DEGRADED';
-    enabled: boolean;
-    lastCheck?: {
-        status: 'UP' | 'DOWN';
-        latency: number;
-        createdAt: string;
-    };
-}
+export type Monitor = {
+  id: string;
+  name: string;
+  url: string;
+  interval: number; // seconds
+  status: 'UP' | 'DOWN' | 'PENDING';
+  lastCheckedAt: string | null;
+  uptimePercent24h: number;
+};
 
-export interface Incident {
-    id: string;
-    monitorId: string;
-    status: 'OPEN' | 'RESOLVED';
-    createdAt: string;
-    resolvedAt?: string;
-}
+export type MonitorStatus = Monitor['status'];
+
+export type MonitorPayload = {
+  name: string;
+  url: string;
+  interval: number;
+  alertEmail: string;
+};
+
+export type CheckResult = {
+  id: string;
+  monitorId: string;
+  checkedAt: string;
+  statusCode: number | null;
+  latencyMs: number | null;
+  result: 'UP' | 'DOWN';
+};
+
+export type MonitorStats = {
+  uptime24h: number;
+  uptime7d: number;
+  uptime30d: number;
+  avgLatency: number;
+};
+
+export type Incident = {
+  id: string;
+  monitorId: string;
+  monitorName: string;
+  startedAt: string;
+  resolvedAt: string | null;
+  alertSent: boolean;
+};
+
+export type LoginRequest = {
+  email: string;
+  password: string;
+};
+
+export type LoginResponse = {
+  token: string;
+};
