@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Route guard
   useEffect(() => {
     if (!pathname) return;
-    const publicPaths = ['/login', '/signup'];
+    const publicPaths = ['/login', '/signup', '/guide'];
     // It's a public route if it exactly matches '/' OR starts with a public path
     const isPublic = pathname === '/' || publicPaths.some((p) => pathname.startsWith(p));
 
