@@ -1,15 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
-import {
-    AlertTriangle, CheckCircle, Zap, ChevronRight,
-    Layers, Shield, GitBranch, ArrowRight, Database
-} from 'lucide-react';
+import { Shield, ArrowRight, ChevronRight, Check, X } from 'lucide-react';
 
-/* ─── Reusable: sticky nav ─────────────────────────────── */
+/* ─── Nav ───────────────────────────────────────────────── */
 function Nav() {
     return (
         <header className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/90 backdrop-blur-sm">
@@ -34,131 +31,112 @@ function Nav() {
 /* ─── Hero ──────────────────────────────────────────────── */
 function Hero() {
     return (
-        <section className="mx-auto max-w-6xl px-6 pt-28 pb-24 relative">
-            {/* Glow orb */}
-            <div className="absolute left-1/4 top-0 h-64 w-64 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/5 blur-3xl pointer-events-none" />
+        <section className="relative mx-auto max-w-6xl px-6 pt-32 pb-28">
+            {/* Glow orbs */}
+            <div className="pointer-events-none absolute left-1/3 top-0 h-96 w-96 -translate-x-1/2 -translate-y-1/2 rounded-full bg-cyan-500/8 blur-3xl" />
+            <div className="pointer-events-none absolute right-1/4 top-20 h-64 w-64 rounded-full bg-violet-500/5 blur-3xl" />
 
-            <div className="max-w-3xl relative z-10 animate-fade-in">
-                {/* Tag */}
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-cyan-500/20 bg-cyan-500/5 px-3 py-1 text-xs font-mono text-cyan-400">
-                    <span className="relative flex h-2 w-2">
-                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-cyan-400 opacity-60" />
-                        <span className="relative inline-flex h-2 w-2 rounded-full bg-cyan-500" />
+            <div className="relative z-10 max-w-3xl animate-fade-in">
+                {/* Status pill */}
+                <div className="mb-8 inline-flex items-center gap-2.5 rounded-full border border-emerald-500/25 bg-emerald-500/8 px-4 py-1.5">
+                    <span className="relative flex h-2.5 w-2.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                        <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
                     </span>
-                    All systems operational
+                    <span className="font-mono text-xs font-medium text-emerald-400 tracking-wide">
+                        All systems operational
+                    </span>
                 </div>
 
-                <h1 className="mb-5 text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-5xl">
-                    Uptime Monitoring<br />
-                    <span className="gradient-text-cyan">
-                        That Doesn't Lie
-                    </span>
+                {/* Headline */}
+                <h1 className="mb-6 text-5xl font-bold leading-[1.08] tracking-tight text-white sm:text-6xl">
+                    Monitoring You Can{' '}
+                    <span className="gradient-text-cyan">Actually Trust</span>
                 </h1>
 
-                <p className="mb-8 max-w-xl text-base leading-relaxed text-slate-400">
-                    SentinelMesh uses multi-stage verification and distributed workers to eliminate false
-                    positives — so you only get paged when something is actually down.
+                {/* Subheadline */}
+                <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate-400">
+                    Most monitoring tools page you for blips. SentinelMesh uses multi-stage verification
+                    and distributed workers to confirm downtime before waking anyone up — eliminating
+                    false positives without missing real outages.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4 mb-12">
+                {/* CTAs */}
+                <div className="flex flex-wrap items-center gap-4">
                     <Link
                         href="/guide"
-                        className="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-400"
+                        className="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20"
                     >
-                        Get Started <ArrowRight className="h-3.5 w-3.5" />
+                        Get Started <ArrowRight className="h-4 w-4" />
                     </Link>
                     <Link
                         href="/login"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/40 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-700 hover:text-white"
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/40 px-6 py-3 text-sm font-medium text-slate-300 transition-all hover:bg-slate-700 hover:text-white"
                     >
                         Sign In
                     </Link>
-                    <a
-                        href="https://github.com/Gowtham-beep/SentinelMesh"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/40 px-5 py-2.5 text-sm font-medium text-slate-300 transition-all hover:bg-slate-700 hover:text-white"
-                    >
-                        <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
-                            <path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                        </svg>
-                        Star on GitHub
-                    </a>
-                </div>
-
-                {/* Proof-in-a-Box */}
-                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6">
-                    <div className="mb-4 flex items-center justify-between border-b border-slate-800 pb-4">
-                        <div className="flex items-center gap-2">
-                            <div className="h-3 w-3 rounded-full bg-slate-700" />
-                            <div className="h-3 w-3 rounded-full bg-slate-700" />
-                            <div className="h-3 w-3 rounded-full bg-slate-700" />
-                        </div>
-                        <span className="font-mono text-xs text-slate-500">worker.ts</span>
-                    </div>
-                    <pre className="overflow-x-auto text-sm">
-                        <code className="font-mono text-slate-300">
-                            <span className="text-slate-500">{'// 1. Scheduler adds idempotent check (deduped by ID)'}</span>{'\n'}
-                            <span className="text-cyan-400">await</span> monitorCheckQueue.<span className="text-emerald-400">add</span>({' '}{'\n'}
-                            {'  '}<span className="text-amber-300">'check'</span>,{'\n'}
-                            {'  '}{'{'} monitorId: <span className="text-amber-300">'app-123'</span>, url: <span className="text-amber-300">'https://api.example.com'</span> {'}'},{'\n'}
-                            {'  '}{'{'} jobId: <span className="text-amber-300">'app-123-US-2023-10-25T10:00:00'</span> {'}'}{'\n'}
-                            );{'\n'}
-                            {'\n'}
-                            <span className="text-slate-500">{'// 2. Worker executes check & appends to distributed ledger'}</span>{'\n'}
-                            <span className="text-cyan-400">const</span> result = <span className="text-cyan-400">await</span> <span className="text-emerald-400">httpCheck</span>(url);{'\n'}
-                            <span className="text-cyan-400">await</span> prisma.checkResult.<span className="text-emerald-400">create</span>({'{'} data: result {'}'});
-                        </code>
-                    </pre>
                 </div>
             </div>
         </section>
     );
 }
 
-/* ─── Problem → Solution ────────────────────────────────── */
-const problems = [
+/* ─── Section 2 — Real Pain, Real Fix ───────────────────── */
+const painFixRows = [
     {
-        icon: AlertTriangle,
-        problem: 'Single-point checks cry wolf',
-        solution: 'Multi-stage verification before any alert',
+        problem: 'False positives wake you at 3 AM',
+        solution: 'Multi-stage verification before any alert fires',
     },
     {
-        icon: Zap,
-        problem: 'Cron scripts don\'t scale',
-        solution: 'Distributed stateless workers via BullMQ / Redis',
+        problem: 'Real outages get missed',
+        solution: 'Consecutive failure threshold — not a single blip',
     },
     {
-        icon: Database,
-        problem: 'Databases overwrite current status',
-        solution: 'Append-only data integrity for forensic logs',
-    },
-    {
-        icon: CheckCircle,
         problem: 'Alert spam burns teams out',
-        solution: 'State-based alerting — only on transitions',
+        solution: 'State-based alerting — only on UP→DOWN transitions',
+    },
+    {
+        problem: "Your current tool can't scale",
+        solution: 'Distributed stateless workers, horizontally scalable',
     },
 ];
 
-function ProblemSolution() {
+function PainFix() {
     return (
-        <section className="border-t border-slate-800/60 bg-slate-900/30 py-20">
+        <section className="border-t border-slate-800/60 bg-slate-900/25 py-24">
             <div className="mx-auto max-w-6xl px-6">
-                <p className="mb-10 font-mono text-xs uppercase tracking-widest text-slate-500">
-                    How it's different
-                </p>
-                <div className="grid gap-4 sm:grid-cols-3">
-                    {problems.map(({ icon: Icon, problem, solution }) => (
-                        <div
-                            key={problem}
-                            className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-6 transition-colors hover:border-slate-700"
-                        >
-                            <Icon className="mb-4 h-5 w-5 text-cyan-400" />
-                            <p className="mb-3 text-xs font-mono text-slate-500 line-through decoration-slate-700">
-                                {problem}
-                            </p>
-                            <p className="text-sm font-medium text-slate-200">{solution}</p>
-                        </div>
+                <div className="grid gap-0 sm:grid-cols-2 rounded-2xl border border-slate-800/80 overflow-hidden shadow-2xl">
+                    {/* Left header */}
+                    <div className="border-b border-slate-800/80 bg-rose-950/20 px-8 py-5">
+                        <p className="font-mono text-sm font-semibold uppercase tracking-widest text-rose-400/80">
+                            The problem
+                        </p>
+                    </div>
+                    {/* Right header */}
+                    <div className="border-b border-slate-800/80 bg-cyan-950/20 px-8 py-5 sm:border-l">
+                        <p className="font-mono text-sm font-semibold uppercase tracking-widest text-cyan-400/80">
+                            SentinelMesh
+                        </p>
+                    </div>
+
+                    {/* Rows */}
+                    {painFixRows.map(({ problem, solution }, i) => (
+                        <React.Fragment key={i}>
+                            {/* Problem cell */}
+                            <div
+                                className={`flex items-start gap-3 px-8 py-5 bg-slate-950/40 ${i < painFixRows.length - 1 ? 'border-b border-slate-800/60' : ''}`}
+                            >
+                                <X className="mt-0.5 h-4 w-4 shrink-0 text-rose-500/70" />
+                                <p className="text-sm text-slate-400 leading-relaxed">{problem}</p>
+                            </div>
+                            {/* Solution cell */}
+                            <div
+                                className={`flex items-start gap-3 px-8 py-5 bg-slate-950/20 sm:border-l border-slate-800/60 ${i < painFixRows.length - 1 ? 'border-b border-slate-800/60' : ''}`}
+                            >
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-500" />
+                                <p className="text-sm text-slate-200 font-medium leading-relaxed">{solution}</p>
+                            </div>
+                        </React.Fragment>
                     ))}
                 </div>
             </div>
@@ -166,26 +144,28 @@ function ProblemSolution() {
     );
 }
 
-/* ─── Architecture Pipeline ─────────────────────────────── */
+/* ─── Section 3 — Architecture Pipeline ─────────────────── */
 const pipeline = [
-    { label: 'Scheduler', desc: 'Per-monitor cadence,\nidempotent dispatch' },
-    { label: 'Worker Nodes', desc: 'Stateless,\nhorizontally scalable' },
-    { label: 'Check Results', desc: 'TimescaleDB\nappend-only log' },
-    { label: 'Verifier', desc: 'State machine\nUP/DOWN transitions' },
-    { label: 'Incident', desc: 'Created once,\nresolved on recovery' },
-    { label: 'Alert', desc: 'Deduplicated,\nspam-proof notifications' },
+    { label: 'Scheduler', desc: 'Idempotent dispatch, per-monitor cadence' },
+    { label: 'Worker Nodes', desc: 'Stateless, horizontally scalable' },
+    { label: 'Check Results', desc: 'Append-only, immutable log' },
+    { label: 'Verifier', desc: 'State machine, confirms before acting' },
+    { label: 'Incident', desc: 'Created once, resolved on recovery' },
+    { label: 'Alert', desc: 'Deduplicated, transition-only, spam-proof' },
 ];
 
 function Architecture() {
     return (
         <section className="border-t border-slate-800/60 py-24 bg-slate-950">
             <div className="mx-auto max-w-6xl px-6">
-                <p className="mb-2 font-mono text-xs uppercase tracking-widest text-slate-500">Architecture</p>
-                <h2 className="mb-3 text-2xl font-bold tracking-tight text-slate-100">
+                <p className="mb-3 font-mono text-xs uppercase tracking-widest text-slate-500">
+                    Architecture
+                </p>
+                <h2 className="mb-3 text-3xl font-bold tracking-tight text-slate-100">
                     Built like infrastructure, not a side project
                 </h2>
-                <p className="mb-14 text-sm text-slate-400">
-                    A heavy-duty pipeline leveraging PostgreSQL + TimescaleDB for high-throughput time-series data. Every component is stateless, isolated, and replaceable.
+                <p className="mb-16 text-base text-slate-400 max-w-xl">
+                    Every component has one job. Nothing overlaps.
                 </p>
 
                 {/* Pipeline */}
@@ -195,39 +175,116 @@ function Architecture() {
                             <div key={node.label} className="flex items-start">
                                 {/* Node */}
                                 <div className="flex flex-col items-center">
-                                    <div className="rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-2 font-mono text-xs font-semibold text-cyan-400 whitespace-nowrap shadow-sm">
+                                    <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/8 ring-1 ring-cyan-500/10 px-5 py-3 font-mono text-sm font-semibold text-cyan-300 whitespace-nowrap shadow-sm hover:border-cyan-500/50 transition-colors">
                                         {node.label}
                                     </div>
-                                    <div className="mt-3 max-w-[110px] text-center font-mono text-[10px] leading-relaxed text-slate-500 whitespace-pre-line">
+                                    <div className="mt-3 max-w-[120px] text-center font-mono text-[11px] leading-relaxed text-slate-500">
                                         {node.desc}
                                     </div>
                                 </div>
-                                {/* Arrow */}
+                                {/* Arrow connector */}
                                 {i < pipeline.length - 1 && (
-                                    <div className="mt-2.5 flex items-center px-2 text-slate-700">
-                                        <div className="h-px w-6 bg-slate-700" />
-                                        <ChevronRight className="h-3 w-3 -ml-1" />
+                                    <div className="mt-3.5 flex items-center px-2 text-slate-700">
+                                        <div className="h-px w-8 bg-gradient-to-r from-slate-700 to-slate-600" />
+                                        <ChevronRight className="h-3.5 w-3.5 -ml-1 text-slate-600" />
                                     </div>
                                 )}
                             </div>
                         ))}
                     </div>
                 </div>
+            </div>
+        </section>
+    );
+}
 
-                {/* Detail grid */}
-                <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {[
-                        { icon: Layers, title: 'BullMQ job queues', body: 'Jobs are deduplicated by ID before enqueue — the scheduler can tick as often as needed without creating duplicate checks.' },
-                        { icon: Database, title: 'TimescaleDB persistence', body: 'We don\'t just update a "status" row. Every check is an immutable record, giving you a forensic audit trail of all anomalies at scale.' },
-                        { icon: GitBranch, title: 'Multi-region consensus', body: 'A regional outage only becomes a GLOBAL incident after 2+ regions confirm DOWN — eliminating single-node false positives.' },
-                        { icon: Shield, title: 'Transition-only alerts', body: 'Alerts fire exactly once when status changes: DOWN → incident opened, UP → incident resolved. No repeat noise.' },
-                    ].map(({ icon: Icon, title, body }) => (
-                        <div key={title} className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-5 shadow-sm">
-                            <div className="mb-3 flex items-center gap-2">
-                                <Icon className="h-4 w-4 text-cyan-400" />
-                                <span className="text-sm font-semibold text-slate-200">{title}</span>
+/* ─── Section 4 — Comparison Table ──────────────────────── */
+type CompareValue = boolean | 'Partial';
+
+const compareRows: { feature: string; uptimeRobot: CompareValue; uptimeKuma: CompareValue; sentinel: CompareValue }[] = [
+    { feature: 'Multi-stage verification', uptimeRobot: false, uptimeKuma: false, sentinel: true },
+    { feature: 'Distributed workers', uptimeRobot: false, uptimeKuma: false, sentinel: true },
+    { feature: 'False positive protection', uptimeRobot: 'Partial', uptimeKuma: 'Partial', sentinel: true },
+    { feature: 'Self-hostable', uptimeRobot: false, uptimeKuma: true, sentinel: true },
+    { feature: 'Built for scale', uptimeRobot: false, uptimeKuma: false, sentinel: true },
+];
+
+function CompareCell({ value }: { value: CompareValue }) {
+    if (value === true)
+        return (
+            <div className="flex justify-center">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-cyan-500/15 ring-1 ring-cyan-500/30">
+                    <Check className="h-3.5 w-3.5 text-cyan-400" />
+                </div>
+            </div>
+        );
+    if (value === false)
+        return (
+            <div className="flex justify-center">
+                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-800/60">
+                    <X className="h-3.5 w-3.5 text-slate-600" />
+                </div>
+            </div>
+        );
+    return (
+        <div className="flex justify-center">
+            <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 font-mono text-[10px] font-medium text-amber-400">
+                Partial
+            </span>
+        </div>
+    );
+}
+
+function CompareTable() {
+    return (
+        <section className="border-t border-slate-800/60 bg-slate-900/25 py-24">
+            <div className="mx-auto max-w-5xl px-6">
+                <p className="mb-3 font-mono text-xs uppercase tracking-widest text-slate-500">
+                    Comparison
+                </p>
+                <h2 className="mb-12 text-3xl font-bold tracking-tight text-slate-100">
+                    How it compares
+                </h2>
+
+                <div className="overflow-hidden rounded-2xl border border-slate-800/80 shadow-2xl">
+                    {/* Header row */}
+                    <div className="grid grid-cols-4 border-b border-slate-800/60 bg-slate-900/60">
+                        <div className="px-6 py-4" />
+                        <div className="px-4 py-4 text-center">
+                            <span className="font-mono text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                UptimeRobot
+                            </span>
+                        </div>
+                        <div className="px-4 py-4 text-center">
+                            <span className="font-mono text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                                Uptime Kuma
+                            </span>
+                        </div>
+                        <div className="px-4 py-4 text-center bg-cyan-500/4 border-l border-cyan-500/15">
+                            <span className="font-mono text-xs font-semibold text-cyan-400 uppercase tracking-wider">
+                                SentinelMesh
+                            </span>
+                        </div>
+                    </div>
+
+                    {/* Data rows */}
+                    {compareRows.map(({ feature, uptimeRobot, uptimeKuma, sentinel }, i) => (
+                        <div
+                            key={feature}
+                            className={`grid grid-cols-4 ${i < compareRows.length - 1 ? 'border-b border-slate-800/40' : ''} hover:bg-slate-900/30 transition-colors`}
+                        >
+                            <div className="flex items-center px-6 py-4">
+                                <span className="text-sm font-medium text-slate-300">{feature}</span>
                             </div>
-                            <p className="text-xs leading-relaxed text-slate-400">{body}</p>
+                            <div className="flex items-center justify-center px-4 py-4">
+                                <CompareCell value={uptimeRobot} />
+                            </div>
+                            <div className="flex items-center justify-center px-4 py-4">
+                                <CompareCell value={uptimeKuma} />
+                            </div>
+                            <div className="flex items-center justify-center px-4 py-4 bg-cyan-500/3 border-l border-cyan-500/10">
+                                <CompareCell value={sentinel} />
+                            </div>
                         </div>
                     ))}
                 </div>
@@ -236,18 +293,19 @@ function Architecture() {
     );
 }
 
-/* ─── Tech Stack ────────────────────────────────────────── */
-const stack = ['Node.js', 'Fastify', 'BullMQ', 'Redis', 'PostgreSQL', 'TimescaleDB', 'Next.js', 'TypeScript', 'Prisma'];
+/* ─── Section 5 — Tech Stack ─────────────────────────────── */
+const stack = ['Node.js', 'Fastify', 'BullMQ', 'Redis', 'PostgreSQL', 'TimescaleDB', 'Next.js', 'TypeScript'];
 
 function TechStrip() {
     return (
-        <section className="border-t border-slate-800/60 bg-slate-900/30 py-10">
+        <section className="border-t border-slate-800/60 bg-slate-950 py-10">
             <div className="mx-auto max-w-6xl px-6">
-                <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-2">
                     <span className="font-mono text-xs text-slate-500">Built with —</span>
                     {stack.map((t, i) => (
                         <span key={t} className="font-mono text-xs text-slate-400">
-                            {t}{i < stack.length - 1 && <span className="ml-6 text-slate-700">·</span>}
+                            {t}
+                            {i < stack.length - 1 && <span className="mx-2 text-slate-700">·</span>}
                         </span>
                     ))}
                 </div>
@@ -256,12 +314,14 @@ function TechStrip() {
     );
 }
 
-/* ─── Footer ────────────────────────────────────────────── */
+/* ─── Footer ─────────────────────────────────────────────── */
 function Footer() {
     return (
         <footer className="border-t border-slate-800/60 py-8 bg-slate-950">
             <div className="mx-auto flex max-w-6xl items-center justify-between px-6">
-                <span className="font-mono text-xs text-slate-500 flex items-center gap-1.5"><Shield className="h-3 w-3" /> SentinelMesh</span>
+                <span className="font-mono text-xs text-slate-500 flex items-center gap-1.5">
+                    <Shield className="h-3 w-3" /> SentinelMesh
+                </span>
                 <span className="font-mono text-xs text-slate-600">
                     Built by <span className="text-slate-400">Gowtham N</span>
                 </span>
@@ -285,8 +345,9 @@ export default function LandingPage() {
         <div className="min-h-screen bg-slate-950 bg-dot-grid">
             <Nav />
             <Hero />
-            <ProblemSolution />
+            <PainFix />
             <Architecture />
+            <CompareTable />
             <TechStrip />
             <Footer />
         </div>
