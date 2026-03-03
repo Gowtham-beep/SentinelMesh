@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import {
     AlertTriangle, CheckCircle, Zap, ChevronRight,
-    Layers, Shield, GitBranch, ArrowRight,
+    Layers, Shield, GitBranch, ArrowRight, Database
 } from 'lucide-react';
 
 /* ─── Reusable: sticky nav ─────────────────────────────── */
@@ -60,7 +60,7 @@ function Hero() {
                     positives — so you only get paged when something is actually down.
                 </p>
 
-                <div className="flex flex-wrap items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4 mb-12">
                     <Link
                         href="/guide"
                         className="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-5 py-2.5 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-400"
@@ -85,6 +85,32 @@ function Hero() {
                         Star on GitHub
                     </a>
                 </div>
+
+                {/* Proof-in-a-Box */}
+                <div className="rounded-xl border border-slate-800 bg-slate-900/80 p-4 shadow-2xl backdrop-blur-sm sm:p-6">
+                    <div className="mb-4 flex items-center justify-between border-b border-slate-800 pb-4">
+                        <div className="flex items-center gap-2">
+                            <div className="h-3 w-3 rounded-full bg-slate-700" />
+                            <div className="h-3 w-3 rounded-full bg-slate-700" />
+                            <div className="h-3 w-3 rounded-full bg-slate-700" />
+                        </div>
+                        <span className="font-mono text-xs text-slate-500">worker.ts</span>
+                    </div>
+                    <pre className="overflow-x-auto text-sm">
+                        <code className="font-mono text-slate-300">
+                            <span className="text-slate-500">{'// 1. Scheduler adds idempotent check (deduped by ID)'}</span>{'\n'}
+                            <span className="text-cyan-400">await</span> monitorCheckQueue.<span className="text-emerald-400">add</span>({' '}{'\n'}
+                            {'  '}<span className="text-amber-300">'check'</span>,{'\n'}
+                            {'  '}{'{'} monitorId: <span className="text-amber-300">'app-123'</span>, url: <span className="text-amber-300">'https://api.example.com'</span> {'}'},{'\n'}
+                            {'  '}{'{'} jobId: <span className="text-amber-300">'app-123-US-2023-10-25T10:00:00'</span> {'}'}{'\n'}
+                            );{'\n'}
+                            {'\n'}
+                            <span className="text-slate-500">{'// 2. Worker executes check & appends to distributed ledger'}</span>{'\n'}
+                            <span className="text-cyan-400">const</span> result = <span className="text-cyan-400">await</span> <span className="text-emerald-400">httpCheck</span>(url);{'\n'}
+                            <span className="text-cyan-400">await</span> prisma.checkResult.<span className="text-emerald-400">create</span>({'{'} data: result {'}'});
+                        </code>
+                    </pre>
+                </div>
             </div>
         </section>
     );
@@ -101,6 +127,11 @@ const problems = [
         icon: Zap,
         problem: 'Cron scripts don\'t scale',
         solution: 'Distributed stateless workers via BullMQ / Redis',
+    },
+    {
+        icon: Database,
+        problem: 'Databases overwrite current status',
+        solution: 'Append-only data integrity for forensic logs',
     },
     {
         icon: CheckCircle,
@@ -139,7 +170,7 @@ function ProblemSolution() {
 const pipeline = [
     { label: 'Scheduler', desc: 'Per-monitor cadence,\nidempotent dispatch' },
     { label: 'Worker Nodes', desc: 'Stateless,\nhorizontally scalable' },
-    { label: 'Check Results', desc: 'Append-only,\nimmutable log' },
+    { label: 'Check Results', desc: 'TimescaleDB\nappend-only log' },
     { label: 'Verifier', desc: 'State machine\nUP/DOWN transitions' },
     { label: 'Incident', desc: 'Created once,\nresolved on recovery' },
     { label: 'Alert', desc: 'Deduplicated,\nspam-proof notifications' },
@@ -154,7 +185,7 @@ function Architecture() {
                     Built like infrastructure, not a side project
                 </h2>
                 <p className="mb-14 text-sm text-slate-400">
-                    Every component is stateless, isolated, and replaceable. No shared state, no timing hacks.
+                    A heavy-duty pipeline leveraging PostgreSQL + TimescaleDB for high-throughput time-series data. Every component is stateless, isolated, and replaceable.
                 </p>
 
                 {/* Pipeline */}
@@ -187,6 +218,7 @@ function Architecture() {
                 <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                     {[
                         { icon: Layers, title: 'BullMQ job queues', body: 'Jobs are deduplicated by ID before enqueue — the scheduler can tick as often as needed without creating duplicate checks.' },
+                        { icon: Database, title: 'TimescaleDB persistence', body: 'We don\'t just update a "status" row. Every check is an immutable record, giving you a forensic audit trail of all anomalies at scale.' },
                         { icon: GitBranch, title: 'Multi-region consensus', body: 'A regional outage only becomes a GLOBAL incident after 2+ regions confirm DOWN — eliminating single-node false positives.' },
                         { icon: Shield, title: 'Transition-only alerts', body: 'Alerts fire exactly once when status changes: DOWN → incident opened, UP → incident resolved. No repeat noise.' },
                     ].map(({ icon: Icon, title, body }) => (
@@ -205,7 +237,7 @@ function Architecture() {
 }
 
 /* ─── Tech Stack ────────────────────────────────────────── */
-const stack = ['Node.js', 'Fastify', 'BullMQ', 'Redis', 'PostgreSQL', 'Next.js', 'TypeScript', 'Prisma'];
+const stack = ['Node.js', 'Fastify', 'BullMQ', 'Redis', 'PostgreSQL', 'TimescaleDB', 'Next.js', 'TypeScript', 'Prisma'];
 
 function TechStrip() {
     return (
