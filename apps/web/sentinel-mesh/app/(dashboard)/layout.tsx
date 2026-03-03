@@ -4,12 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/auth-context';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Activity, AlertTriangle, LogOut, Shield } from 'lucide-react';
+import { LayoutDashboard, Activity, AlertTriangle, LogOut, Shield, User } from 'lucide-react';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Monitors', href: '/monitors', icon: Activity },
   { name: 'Incidents', href: '/incidents', icon: AlertTriangle },
+  { name: 'Profile', href: '/profile', icon: User },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

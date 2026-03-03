@@ -98,3 +98,13 @@ export async function listIncidents(monitorId?: string) {
   });
   return res.data;
 }
+
+export async function getUserProfile() {
+  const res = await api.get('/auth/me');
+  return res.data;
+}
+
+export async function changePassword(payload: { currentPassword: string; newPassword: string }) {
+  const res = await api.put('/auth/password', payload);
+  return res.data;
+}
