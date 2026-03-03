@@ -1,15 +1,21 @@
 import '@but/config'
-import {Resend} from 'resend';
+import nodemailer from 'nodemailer';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.APP_PASSWORD
+    }
+});
 
 export async function sendEmail(
-    to:string,
-    subject:string,
-    html:string
-){
-    await resend.emails.send({
-        from:process.env.ALERT_FROM_EMAIL!,
+    to: string,
+    subject: string,
+    html: string
+) {
+    await transporter.sendMail({
+        from: process.env.EMAIL,
         to,
         subject,
         html

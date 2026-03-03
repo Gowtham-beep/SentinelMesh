@@ -18,7 +18,11 @@
     "db": "workspace:*",
     "dotenv": "^17.2.3",
     "node-fetch": "^3.3.2",
+    "nodemailer": "^8.0.1",
     "queue": "workspace:*",
     "resend": "^6.7.0"
+  },
+  "devDependencies": {
+    "@types/nodemailer": "^7.0.11"
   }
 }
