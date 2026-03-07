@@ -1,5 +1,1 @@
-export default [
-  {
-    root: false,
-  },
-];
+export default [];
