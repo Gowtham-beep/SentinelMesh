@@ -248,7 +248,7 @@ export default function MonitorDetailPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-800/60">
-                  {['Timestamp', 'Region', 'Status Code', 'Latency', 'Result'].map(h => (
+                  {['Timestamp', 'Status Code', 'Latency', 'Result'].map(h => (
                     <th key={h} className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-slate-600">{h}</th>
                   ))}
                 </tr>
@@ -257,7 +257,6 @@ export default function MonitorDetailPage() {
                 {recentChecks.map(c => (
                   <tr key={c.id} className="hover:bg-slate-800/20 transition-colors">
                     <td className="px-6 py-3 font-mono text-xs text-slate-400">{new Date(c.checkedAt).toLocaleString()}</td>
-                    <td className="px-6 py-3 font-mono text-xs text-slate-500">{c.region}</td>
                     <td className="px-6 py-3 font-mono text-xs">
                       <span className={c.statusCode && c.statusCode < 400 ? 'text-green-400' : 'text-red-400'}>
                         {c.statusCode ?? '—'}
@@ -277,6 +276,27 @@ export default function MonitorDetailPage() {
             </table>
           </div>
         )}
+      </div>
+
+      {/* V2 Roadmap */}
+      <div className="border-t border-slate-800/60 pt-8 pb-2">
+        <p className="text-xs font-mono font-medium uppercase tracking-widest text-slate-600 mb-5">What&apos;s coming in V2</p>
+        <dl className="space-y-4">
+          {[
+            ['Multi-region verification', 'Checks from Frankfurt, Virginia, and Mumbai. Quorum-based confirmation before any alert fires.'],
+            ['WhatsApp alerts', 'Get notified where you actually are.'],
+            ['Status pages', 'A public URL your users can check themselves.'],
+            ['Performance metrics', 'p50, p95, p99 response times per monitor.'],
+          ].map(([title, desc]) => (
+            <div key={title} className="flex gap-3">
+              <span className="mt-0.5 shrink-0 font-mono text-xs text-slate-700">—</span>
+              <div>
+                <dt className="font-mono text-xs text-slate-500">{title}</dt>
+                <dd className="mt-0.5 font-mono text-xs text-slate-700">{desc}</dd>
+              </div>
+            </div>
+          ))}
+        </dl>
       </div>
     </div>
   );

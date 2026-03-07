@@ -225,13 +225,12 @@ export default function GuidePage() {
                     <section id="verification">
                         <div className="mb-5 flex items-center gap-3">
                             <StepBadge n={3} />
-                            <h2 className="text-xl font-semibold text-slate-100">How multi-stage verification works</h2>
+                            <h2 className="text-xl font-semibold text-slate-100">How verification works</h2>
                         </div>
                         <div className="ml-12 space-y-4">
                             <p className="text-sm text-slate-400 leading-relaxed">
                                 A single failed HTTP check does <strong className="text-slate-300">not</strong> trigger
-                                an alert. SentinelMesh uses a state machine with consecutive failure thresholds to
-                                distinguish blips from real outages.
+                                an alert. SentinelMesh uses a consecutive failure threshold to distinguish blips from real outages.
                             </p>
 
                             {/* Stage diagram */}
@@ -239,21 +238,20 @@ export default function GuidePage() {
                                 <div className="rounded-xl border border-slate-700/50 bg-slate-800/20 p-4">
                                     <div className="mb-2 flex items-center gap-2">
                                         <Activity className="h-4 w-4 text-amber-400" />
-                                        <h3 className="text-sm font-semibold text-slate-300">Stage 1 — Regional incident</h3>
+                                        <h3 className="text-sm font-semibold text-slate-300">Stage 1 — Blip detection</h3>
                                     </div>
                                     <p className="text-xs leading-relaxed text-slate-400">
-                                        Two consecutive failures from a single region open a regional incident.
-                                        No alert is sent — this may be a routing anomaly, not a real outage.
+                                        One failed check is logged but ignored. Network hiccups happen.
                                     </p>
                                 </div>
                                 <div className="rounded-xl border border-rose-800/40 bg-rose-950/15 p-4">
                                     <div className="mb-2 flex items-center gap-2">
                                         <AlertTriangle className="h-4 w-4 text-rose-400" />
-                                        <h3 className="text-sm font-semibold text-slate-300">Stage 2 — Global incident</h3>
+                                        <h3 className="text-sm font-semibold text-slate-300">Stage 2 — Confirmed outage</h3>
                                     </div>
                                     <p className="text-xs leading-relaxed text-slate-400">
-                                        If 2+ regions confirm the failure, a global incident opens and your alert
-                                        email fires — exactly once. The monitor is officially marked DOWN.
+                                        Two or more consecutive failures confirm a real outage. An incident
+                                        opens and your alert fires — exactly once.
                                     </p>
                                 </div>
                             </div>
@@ -264,8 +262,7 @@ export default function GuidePage() {
                                 <div className="space-y-2 font-mono text-xs">
                                     {[
                                         { from: 'UP', event: '1 failure', to: 'UP', note: 'no action' },
-                                        { from: 'UP', event: '2+ consecutive failures', to: 'REGIONAL', note: 'no alert' },
-                                        { from: 'REGIONAL', event: '2+ regions DOWN', to: 'DOWN', note: '→ alert fires' },
+                                        { from: 'UP', event: '2+ consecutive failures', to: 'DOWN', note: '→ alert fires' },
                                         { from: 'DOWN', event: 'check passes', to: 'UP', note: '→ resolved email' },
                                     ].map(({ from, event, to, note }, i) => (
                                         <div key={i} className="flex flex-wrap items-center gap-2">
@@ -273,7 +270,7 @@ export default function GuidePage() {
                                             <ChevronRight className="h-3 w-3 text-slate-600" />
                                             <span className="text-slate-500 italic">{event}</span>
                                             <ChevronRight className="h-3 w-3 text-slate-600" />
-                                            <span className={`rounded px-2 py-0.5 ${to === 'DOWN' ? 'bg-rose-950/50 text-rose-400' : to === 'UP' ? 'bg-emerald-950/50 text-emerald-400' : 'bg-amber-950/50 text-amber-400'}`}>{to}</span>
+                                            <span className={`rounded px-2 py-0.5 ${to === 'DOWN' ? 'bg-rose-950/50 text-rose-400' : 'bg-emerald-950/50 text-emerald-400'}`}>{to}</span>
                                             <span className="text-slate-500">{note}</span>
                                         </div>
                                     ))}
@@ -281,7 +278,7 @@ export default function GuidePage() {
                             </div>
                             <Callout variant="tip">
                                 This means SentinelMesh will <strong>never</strong> wake you up for a transient network
-                                blip. You sleep through false positives, but hear about every real outage.
+                                blip. Single-region today — multi-region quorum verification is coming in V2.
                             </Callout>
                         </div>
                     </section>
@@ -346,7 +343,7 @@ export default function GuidePage() {
                             </div>
 
                             <Callout variant="warn">
-                                No webhook or PagerDuty support yet — email only in this release.
+                                V1 supports email alerts only. Webhooks, Slack, and WhatsApp coming in V2.
                             </Callout>
                         </div>
                     </section>
@@ -381,7 +378,7 @@ export default function GuidePage() {
                                         {
                                             icon: AlertTriangle,
                                             title: 'Active incidents',
-                                            desc: 'Open incidents listed with region, opened-at timestamp, and escalation level (regional vs. global). Resolves automatically when checks pass.',
+                                            desc: 'Open incidents listed with opened-at timestamp and duration. Resolves automatically when checks pass.',
                                         },
                                     ].map(({ icon: Icon, title, desc }) => (
                                         <div key={title} className="flex items-start gap-4 px-5 py-4">
@@ -442,6 +439,27 @@ export default function GuidePage() {
                             />
                         </div>
                     </section>
+                </div>
+
+                {/* V2 Roadmap */}
+                <div className="mt-16 border-t border-slate-800/60 pt-10">
+                    <p className="mb-5 font-mono text-xs font-medium uppercase tracking-widest text-slate-600">Coming in V2</p>
+                    <dl className="space-y-4">
+                        {[
+                            ['Multi-region verification', 'Workers in Frankfurt, Virginia, and Mumbai. Quorum-based confirmation (2/3 regions) before any alert fires.'],
+                            ['WhatsApp alerts', 'Notifications where your team actually is.'],
+                            ['Status pages', 'A public URL your users can check themselves.'],
+                            ['Performance metrics', 'p50, p95, p99 response times per monitor.'],
+                        ].map(([title, desc]) => (
+                            <div key={title} className="flex gap-3">
+                                <span className="mt-0.5 shrink-0 font-mono text-xs text-slate-700">—</span>
+                                <div>
+                                    <dt className="font-mono text-xs text-slate-500">{title}</dt>
+                                    <dd className="mt-0.5 font-mono text-xs text-slate-700">{desc}</dd>
+                                </div>
+                            </div>
+                        ))}
+                    </dl>
                 </div>
 
                 {/* CTA Footer */}
