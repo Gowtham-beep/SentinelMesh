@@ -5,9 +5,9 @@ import prisma from 'db';
 
 console.log('Worker started');
 
-import { httpCheck } from './checks/http';
-import { pingCheck } from './checks/ping';
-import { processAlert } from './alert/processor';
+import { httpCheck } from './checks/http.js';
+import { pingCheck } from './checks/ping.js';
+import { processAlert } from './alert/processor.js';
 
 import { MonitorCheckJob } from 'queue/src/types/monitorCheckjob';
 import { SendAlertJob } from 'queue/src/types/sendAlertJob';

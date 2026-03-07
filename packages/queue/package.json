@@ -2,10 +2,25 @@
   "name": "queue",
   "version": "1.0.0",
   "description": "",
-   "type": "module",
-  "main": "src/index.ts",
-  "types": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./src/types/monitorCheckjob": {
+      "import": "./dist/types/monitorCheckjob.js",
+      "types": "./dist/types/monitorCheckjob.d.ts"
+    },
+    "./src/types/sendAlertJob": {
+      "import": "./dist/types/sendAlertJob.js",
+      "types": "./dist/types/sendAlertJob.d.ts"
+    }
+  },
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
