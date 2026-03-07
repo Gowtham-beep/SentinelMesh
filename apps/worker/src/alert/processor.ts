@@ -1,7 +1,7 @@
 import prisma from 'db';
-import { sendEmail } from './email';
-import { buildDownAlertHtml } from './templates/downAlert';
-import { buildResolvedAlertHtml, computeDuration } from './templates/resolvedAlert';
+import { sendEmail } from './email.js';
+import { buildDownAlertHtml } from './templates/downAlert.js';
+import { buildResolvedAlertHtml, computeDuration } from './templates/resolvedAlert.js';
 
 const DASHBOARD_URL =
   (process.env.DASHBOARD_URL ?? 'https://sentinelmesh.app').replace(/\/$/, '');
