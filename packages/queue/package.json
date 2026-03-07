@@ -8,15 +8,9 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
-    },
-    "./src/types/monitorCheckjob": {
-      "import": "./dist/types/monitorCheckjob.js",
-      "types": "./dist/types/monitorCheckjob.d.ts"
-    },
-    "./src/types/sendAlertJob": {
-      "import": "./dist/types/sendAlertJob.js",
-      "types": "./dist/types/sendAlertJob.d.ts"
     }
   },
   "scripts": {

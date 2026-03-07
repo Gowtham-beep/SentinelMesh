@@ -5,6 +5,7 @@ import { MonitorCheckJob } from './types/monitorCheckjob.js';
 import { SendAlertJob } from './types/sendAlertJob.js';
 
 export { redis, redisWorker };
+export type { MonitorCheckJob, SendAlertJob };
 
 export const monitorCheckQueue = new Queue<MonitorCheckJob>(
     'monitor-check-queue',
