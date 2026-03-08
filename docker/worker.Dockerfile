@@ -50,7 +50,7 @@ RUN sed -i 's|"main": "src/index.ts"|"main": "dist/index.js"|' packages/db/packa
 RUN pnpm --filter worker build
 
 # Use pnpm deploy to create a self-contained production bundle with correct workspace links
-RUN pnpm --filter worker deploy --prod /deploy/worker
+RUN pnpm --filter worker deploy --prod /deploy/worker --legacy
 
 FROM node:24-alpine AS production
 WORKDIR /app
