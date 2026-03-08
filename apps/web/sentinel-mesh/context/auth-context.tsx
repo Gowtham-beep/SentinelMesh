@@ -46,12 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const publicPaths = ['/login', '/signup', '/guide'];
     // It's a public route if it exactly matches '/' OR starts with a public path
     const isPublic = pathname === '/' || publicPaths.some((p) => pathname.startsWith(p));
+    const isStrictlyAuthPage = pathname === '/login' || pathname === '/signup';
 
     if (!isAuthenticated && !isPublic) {
       router.replace('/login');
       return;
     }
-    if (isAuthenticated && isPublic) {
+    if (isAuthenticated && isStrictlyAuthPage) {
       router.replace('/dashboard');
     }
   }, [isAuthenticated, pathname, router]);

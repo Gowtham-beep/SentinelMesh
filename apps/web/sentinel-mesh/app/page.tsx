@@ -8,6 +8,10 @@ import { Shield, ArrowRight, ChevronRight, Check, X } from 'lucide-react';
 
 /* ─── Nav ───────────────────────────────────────────────── */
 function Nav() {
+    const { isAuthenticated } = useAuth();
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
     return (
         <header className="sticky top-0 z-50 border-b border-slate-800/60 bg-slate-950/90 backdrop-blur-sm">
             <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
@@ -17,12 +21,18 @@ function Nav() {
                     </div>
                     SentinelMesh
                 </span>
-                <Link
-                    href="/login"
-                    className="rounded-md border border-slate-700 bg-slate-800/30 px-4 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:border-slate-600 hover:text-slate-100"
-                >
-                    Sign In
-                </Link>
+                <div className="min-w-[100px] flex justify-end">
+                    {mounted ? (
+                        <Link
+                            href={isAuthenticated ? "/dashboard" : "/login"}
+                            className="rounded-md border border-slate-700 bg-slate-800/30 px-4 py-1.5 text-sm font-medium text-slate-300 transition-colors hover:border-slate-600 hover:text-slate-100"
+                        >
+                            {isAuthenticated ? "Dashboard" : "Sign In"}
+                        </Link>
+                    ) : (
+                        <div className="h-8 w-20 rounded-md border border-slate-700 bg-slate-800/10" />
+                    )}
+                </div>
             </div>
         </header>
     );
@@ -30,6 +40,10 @@ function Nav() {
 
 /* ─── Hero ──────────────────────────────────────────────── */
 function Hero() {
+    const { isAuthenticated } = useAuth();
+    const [mounted, setMounted] = React.useState(false);
+    React.useEffect(() => setMounted(true), []);
+
     return (
         <section className="relative mx-auto max-w-6xl px-6 pt-32 pb-28">
             {/* Glow orbs */}
@@ -64,17 +78,19 @@ function Hero() {
                 {/* CTAs */}
                 <div className="flex flex-wrap items-center gap-4">
                     <Link
-                        href="/guide"
+                        href={mounted && isAuthenticated ? "/dashboard" : "/guide"}
                         className="inline-flex items-center gap-2 rounded-lg bg-cyan-500 px-6 py-3 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-400 hover:shadow-lg hover:shadow-cyan-500/20"
                     >
-                        Get Started <ArrowRight className="h-4 w-4" />
+                        {mounted && isAuthenticated ? "Go to Dashboard" : "Get Started"} <ArrowRight className="h-4 w-4" />
                     </Link>
-                    <Link
-                        href="/login"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/40 px-6 py-3 text-sm font-medium text-slate-300 transition-all hover:bg-slate-700 hover:text-white"
-                    >
-                        Sign In
-                    </Link>
+                    {(!mounted || !isAuthenticated) && (
+                        <Link
+                            href="/login"
+                            className="inline-flex items-center gap-2 rounded-lg border border-slate-700 bg-slate-800/40 px-6 py-3 text-sm font-medium text-slate-300 transition-all hover:bg-slate-700 hover:text-white"
+                        >
+                            Sign In
+                        </Link>
+                    )}
                 </div>
 
                 {/* V2 Note */}
@@ -338,15 +354,6 @@ function Footer() {
 
 /* ─── Page ──────────────────────────────────────────────── */
 export default function LandingPage() {
-    const { isAuthenticated } = useAuth();
-    const router = useRouter();
-
-    useEffect(() => {
-        if (isAuthenticated) router.replace('/dashboard');
-    }, [isAuthenticated, router]);
-
-    if (isAuthenticated) return null;
-
     return (
         <div className="min-h-screen bg-slate-950 bg-dot-grid">
             <Nav />

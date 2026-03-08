@@ -22,7 +22,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <div className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-slate-800/60 bg-slate-950/95 backdrop-blur-sm">
         {/* Logo */}
-        <div className="flex h-16 items-center gap-3 border-b border-slate-800/60 px-6">
+        <Link href="/" className="flex h-16 items-center gap-3 border-b border-slate-800/60 px-6 transition hover:bg-slate-800/30">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/10 ring-1 ring-cyan-500/30">
             <Shield className="h-4 w-4 text-cyan-400" />
           </div>
@@ -30,7 +30,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <span className="font-bold text-slate-100 tracking-tight">SentinelMesh</span>
             <span className="ml-2 rounded-sm bg-cyan-500/10 px-1.5 py-0.5 text-[10px] font-mono text-cyan-400 ring-1 ring-cyan-500/20">v1</span>
           </div>
-        </div>
+        </Link>
 
         {/* Nav */}
         <nav className="flex flex-1 flex-col gap-1 p-3">
@@ -66,9 +66,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="border-t border-slate-800/60 p-3">
           <button
             onClick={logout}
-            className="group flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-400 transition-all duration-150 hover:bg-rose-500/10 hover:text-rose-400"
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-500 px-4 py-2 text-sm font-semibold text-slate-950 transition-all hover:bg-cyan-400 active:scale-95"
           >
-            <LogOut className="h-4 w-4 shrink-0 transition-colors text-slate-500 group-hover:text-rose-400" />
+            <LogOut className="h-4 w-4 shrink-0" />
             Sign out
           </button>
         </div>
