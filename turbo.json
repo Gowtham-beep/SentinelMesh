@@ -3,8 +3,8 @@
   "ui": "tui",
   "globalEnv": [
     "API_PORT",
-    "RESEND_API_KEY",
-    "ALERT_FROM_EMAIL"
+    "APP_PASSWORD",
+    "EMAIL"
   ],
   "tasks": {
     "build": {
