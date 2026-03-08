@@ -54,3 +54,7 @@ new Worker<SendAlertJob>(
     concurrency: 3
 }
 )
+
+// Cloud Run requires a listening port to consider the service healthy
+import http from 'http';
+http.createServer((_, res) => res.end('ok')).listen(process.env.PORT || 8080);

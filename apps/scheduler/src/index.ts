@@ -1,18 +1,18 @@
 import '@but/config';
 import dayjs from 'dayjs';
-import {monitorCheckQueue} from "queue"
+import { monitorCheckQueue } from "queue"
 import prisma from 'db'
 
-const REGION = ['IN','EU','US'] as const;
+const REGION = ['IN', 'EU', 'US'] as const;
 const TICK_SECONDS = 10;
 
 console.log('Scheduler Started');
 
-setInterval(async()=>{
+setInterval(async () => {
     const now = dayjs();
     const allMonitors = await prisma.monitor.findMany({
-        where:{
-            isActive:true
+        where: {
+            isActive: true
         }
     });
     const dueMonitors = allMonitors.filter(monitor => {
@@ -20,19 +20,19 @@ setInterval(async()=>{
         const intervalMs = (monitor.intervalSeconds || 60) * 1000; // default 60 seconds if null
         return now.diff(dayjs(monitor.lastCheckedAt), 'millisecond') >= intervalMs;
     });
-    for(const monitor of dueMonitors){
+    for (const monitor of dueMonitors) {
         const scheduleAt = now.startOf('minute').toISOString();
-        for(const region of REGION){
-            const jobId=`${monitor.id}-${region}-${scheduleAt}`;
+        for (const region of REGION) {
+            const jobId = `${monitor.id}-${region}-${scheduleAt}`;
 
             await monitorCheckQueue.add(
                 'check',
                 {
-                    monitorId:monitor.id,
-                    url:monitor.url,
-                    method:monitor.method,
+                    monitorId: monitor.id,
+                    url: monitor.url,
+                    method: monitor.method,
                     region,
-                    scheduledAt:scheduleAt
+                    scheduledAt: scheduleAt
                 },
                 {
                     jobId
@@ -40,8 +40,12 @@ setInterval(async()=>{
             );
         }
         await prisma.monitor.update({
-                where:{id:monitor.id},
-                data:{lastCheckedAt:now.toDate()}
-            });
+            where: { id: monitor.id },
+            data: { lastCheckedAt: now.toDate() }
+        });
     }
 }, TICK_SECONDS * 1000);
+
+// Cloud Run requires a listening port to consider the service healthy
+import http from 'http';
+http.createServer((_, res) => res.end('ok')).listen(process.env.PORT || 8080);

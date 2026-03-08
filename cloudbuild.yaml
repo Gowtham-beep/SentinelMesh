@@ -1,0 +1,49 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-api:$COMMIT_SHA'
+      - '-f'
+      - 'docker/api.Dockerfile'
+      - '.'
+    id: 'build-api'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-scheduler:$COMMIT_SHA'
+      - '-f'
+      - 'docker/scheduler.Dockerfile'
+      - '.'
+    id: 'build-scheduler'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-worker:$COMMIT_SHA'
+      - '-f'
+      - 'docker/worker.Dockerfile'
+      - '.'
+    id: 'build-worker'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-verifier:$COMMIT_SHA'
+      - '-f'
+      - 'docker/verifier.Dockerfile'
+      - '.'
+    id: 'build-verifier'
+
+images:
+  - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-api:$COMMIT_SHA'
+  - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-scheduler:$COMMIT_SHA'
+  - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-worker:$COMMIT_SHA'
+  - 'gcr.io/project-e33f8f3c-7302-4fdb-89d/sentinelmesh-verifier:$COMMIT_SHA'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
