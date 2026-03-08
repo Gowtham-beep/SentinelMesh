@@ -76,6 +76,12 @@ function Hero() {
                         Sign In
                     </Link>
                 </div>
+
+                {/* V2 Note */}
+                <div className="mt-12 inline-flex items-center gap-3 rounded-full border border-violet-500/20 bg-violet-500/5 px-4 py-2 text-sm font-medium text-violet-300/90 shadow-sm backdrop-blur-md">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-violet-500/20 text-[10px] font-bold text-violet-400 ring-1 ring-violet-500/40">V2</span>
+                    Coming soon: Multi-region quorum, WhatsApp alerts, and public status pages.
+                </div>
             </div>
         </section>
     );
