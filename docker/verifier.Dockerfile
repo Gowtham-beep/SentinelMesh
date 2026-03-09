@@ -57,6 +57,8 @@ WORKDIR /app
 
 # Copy the self-contained deploy directory (has its own node_modules with workspace links resolved)
 COPY --from=base /deploy/verifier .
+COPY --from=base /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=base /app/node_modules/@prisma ./node_modules/@prisma
 
 ENV NODE_ENV=production
 
