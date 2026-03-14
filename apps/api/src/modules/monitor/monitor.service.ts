@@ -94,7 +94,13 @@ async function updateMonitor(
 
 async function deleteMonitor(app: FastifyInstance, id: string) {
   try {
-    await app.prisma.monitor.delete({ where: { id } });
+    await app.prisma.$transaction([
+      app.prisma.alert.deleteMany({ where: { incident: { monitorId: id } } }),
+      app.prisma.alertConfig.deleteMany({ where: { monitorId: id } }),
+      app.prisma.checkResult.deleteMany({ where: { monitorId: id } }),
+      app.prisma.incident.deleteMany({ where: { monitorId: id } }),
+      app.prisma.monitor.delete({ where: { id } }),
+    ]);
     return { message: 'Monitor Deleted Successfully' };
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
