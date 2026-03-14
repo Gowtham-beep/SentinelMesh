@@ -1,11 +1,11 @@
 'use client';
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { api } from '@/lib/api';
 import { Monitor, CheckResult, MonitorStats, Incident } from '@/types';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Edit, AlertTriangle, Globe, Loader2, Power, Trash2 } from 'lucide-react';
+import { ArrowLeft, Edit, AlertTriangle, Globe, Loader2, Power } from 'lucide-react';
 import Link from 'next/link';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
@@ -83,7 +83,6 @@ const tooltipStyle = { fontSize: 12, borderRadius: 8, border: '1px solid #1e293b
 export default function MonitorDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const router = useRouter();
   const queryClient = useQueryClient();
 
   const toggleMutation = useMutation({
@@ -91,16 +90,6 @@ export default function MonitorDetailPage() {
       await api.patch(`/monitors/${id}`, { isActive });
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['monitors', id] }),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      await api.delete(`/monitors/${id}`);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['monitors'] });
-      router.push('/monitors');
-    },
   });
 
   const { data: monitor, isLoading } = useQuery<Monitor>({
@@ -196,19 +185,6 @@ export default function MonitorDetailPage() {
           </span>
           <Button variant="outline" size="sm" asChild>
             <Link href={`/monitors/${id}/edit`}><Edit className="mr-1.5 h-3.5 w-3.5" />Edit</Link>
-          </Button>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={() => {
-              if (window.confirm('Are you sure you want to delete this monitor? All associated checks, incidents, and alerts will be permanently removed.')) {
-                deleteMutation.mutate();
-              }
-            }}
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Trash2 className="mr-1.5 h-3.5 w-3.5" />}
-            Delete
           </Button>
         </div>
       </div>
