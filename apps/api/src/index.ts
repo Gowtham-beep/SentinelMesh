@@ -40,7 +40,7 @@ server.get("/health", healthCheck);
 
 async function main() {
   try {
-    const port = Number(process.env.API_PORT) || 3000;
+    const port = Number(process.env.PORT) || Number(process.env.API_PORT) || 3000;
     await server.listen({
       port,
       host: "0.0.0.0",
